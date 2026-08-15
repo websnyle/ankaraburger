@@ -1956,7 +1956,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         // Comprobar días bloqueados
-        const { data: bloqueado } = await supa.from('dias_bloqueados').select('motivo').eq('fecha', fecha).maybeSingle();
+        // Con tope de espera: si la base de datos no responde, seguir adelante en vez de
+        // dejar el formulario congelado. Es preferible aceptar la reserva y ajustarla luego.
+        const { data: bloqueado } = await Promise.race([
+            supa.from('dias_bloqueados').select('motivo').eq('fecha', fecha).maybeSingle(),
+            new Promise(resolve => setTimeout(() => resolve({ data: null }), 4000))
+        ]);
         if (bloqueado) {
             mostrarError(`Cerrado ese día: ${bloqueado.motivo}`);
             servicioEl.innerHTML = '<option value="" disabled selected>¿Cuándo?</option>';
@@ -2091,7 +2096,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-calendar-check"></i> RESERVAR';
 
-        if (error) { console.error('Supabase error:', error); return; }
+        // Si no se puede guardar (base de datos inalcanzable, corte de red del operador...)
+        // nunca fallar en silencio: el cliente debe poder reservar igualmente por teléfono.
+        if (error) {
+            console.error('Supabase error:', error);
+            const dispEl = document.getElementById('res-disponibilidad');
+            dispEl.style.display = 'block';
+            dispEl.style.background = 'rgba(229,62,62,0.12)';
+            dispEl.style.color = '#E53E3E';
+            dispEl.innerHTML = 'No hemos podido guardar la reserva. Llámanos y te la tomamos al momento: ' +
+                '<a href="tel:686304738" style="color:#E8891A;font-weight:700;text-decoration:underline">686 30 47 38</a>';
+            return;
+        }
 
         // Evento de conversión: reserva completada
         window.dataLayer = window.dataLayer || [];
