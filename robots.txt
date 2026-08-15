@@ -1,5 +1,4 @@
-# ESPEJO TEMPORAL DE PRUEBA - no debe indexarse para no duplicar contenido
-# con ankaraburger.com. Si este pasa a ser el sitio definitivo, restaurar
-# el contenido de robots.txt.original
 User-agent: *
-Disallow: /
+Allow: /
+
+Sitemap: https://ankaraburger.com/sitemap.xml
