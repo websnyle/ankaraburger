@@ -1,4 +1,4 @@
+# Copia de seguridad, no es el sitio real. No indexar para no competir
+# con ankaraburger.com en Google.
 User-agent: *
-Allow: /
-
-Sitemap: https://ankaraburger.com/sitemap.xml
+Disallow: /
