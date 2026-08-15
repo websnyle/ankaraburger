@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-K7LBWFPF');</script>
+    <!-- End Google Tag Manager -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carta · Ankara Burger · Castelldefels</title>
+    <meta name="description" content="Carta de Ankara Burger, hamburguesería argentina en Castelldefels — Smash Burgers artesanales, entrantes, postres y salsas.">
+    <link rel="canonical" href="https://ankaraburger.com/carta.html">
+
+    <meta property="og:type" content="restaurant">
+    <meta property="og:title" content="Carta · Ankara Burger · Castelldefels">
+    <meta property="og:description" content="Carta de Ankara Burger, hamburguesería argentina en Castelldefels — Smash Burgers artesanales, entrantes, postres y salsas.">
+    <meta property="og:image" content="https://ankaraburger.com/hamburguesa2.webp">
+    <meta property="og:url" content="https://ankaraburger.com/carta.html">
+    <meta property="og:locale" content="es_ES">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Carta · Ankara Burger · Castelldefels">
+    <meta name="twitter:description" content="Carta completa de Ankara Burger — Smash Burgers artesanales, entrantes, postres y salsas.">
+    <meta name="twitter:image" content="https://ankaraburger.com/hamburguesa2.webp">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" href="favicon.ico">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="supabase-js.min.js"></script>
+    <style>
+        :root {
+            --bg:       #0d0d0d;
+            --surface:  #181818;
+            --card:     #1f1f1f;
+            --border:   rgba(255,255,255,0.06);
+            --gold:     #C8A84B;
+            --accent:   #E8891A;
+            --text:     #F0EBE1;
+            --muted:    #7A7069;
+            --fd:       'Bebas Neue', sans-serif;
+            --fb:       'Inter', sans-serif;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { background: var(--bg); color: var(--text); font-family: var(--fb); padding-bottom: 16px; }
+        img { display: block; max-width: 100%; }
+        a { color: inherit; text-decoration: none; }
+
+        /* ── HEADER ── */
+        .hdr {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            height: 56px;
+            background: rgba(13,13,13,0.97);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 16px;
+        }
+        .hdr__left { display: flex; align-items: center; gap: 10px; }
+        .hdr__logo { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(200,168,75,0.3); }
+        .hdr__name { font-family: var(--fd); font-size: 1.05rem; letter-spacing: 0.08em; color: var(--gold); }
+        .hdr__sub  { font-size: 0.58rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+        .hdr__btn {
+            background: var(--gold); color: #000;
+            font-family: var(--fd); font-size: 0.8rem; letter-spacing: 0.08em;
+            padding: 7px 13px; border-radius: 4px;
+            display: flex; align-items: center; gap: 6px;
+            transition: background .2s; white-space: nowrap;
+        }
+        .hdr__btn:active { background: var(--accent); }
+
+        /* ── TABS ── */
+        .tabs {
+            position: fixed; top: 56px; left: 0; right: 0; z-index: 99;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            overflow-x: auto; scrollbar-width: none;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab {
+            flex-shrink: 0;
+            padding: 12px 14px 13px;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            font-family: var(--fb); font-size: 0.6rem; font-weight: 700;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--muted);
+            cursor: pointer; transition: color .25s; white-space: nowrap;
+        }
+        .tab i { font-size: 0.95rem; transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
+        .tab.active { color: var(--gold); }
+        .tab.active i { transform: scale(1.2); }
+        .tab-indicator {
+            position: absolute; bottom: 0; left: 0;
+            height: 2px; background: var(--gold);
+            border-radius: 2px 2px 0 0;
+            transition: left .3s cubic-bezier(.4,0,.2,1), width .3s cubic-bezier(.4,0,.2,1);
+            pointer-events: none;
+        }
+
+        /* ── CONTENT ── */
+        .wrap { padding-top: 106px; }
+
+        @media (min-width: 601px) {
+            .wrap { max-width: 600px; margin: 0 auto; }
+            .hdr, .tabs, .footer {
+                left: calc(50% - 300px);
+                right: calc(50% - 300px);
+            }
+        }
+
+        /* ── CATEGORY HEADER ── */
+        .cat-hdr {
+            padding: 28px 16px 4px;
+            display: flex; align-items: center; gap: 12px;
+            opacity: 0; transform: translateX(-10px);
+            transition: opacity .4s ease, transform .4s ease;
+        }
+        .cat-hdr.visible { opacity: 1; transform: translateX(0); }
+        .cat-hdr__icon {
+            width: 52px; height: 52px; flex-shrink: 0;
+            border-radius: 14px;
+            background: rgba(200,168,75,0.12);
+            border: 1px solid rgba(200,168,75,0.3);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--gold); font-size: 1.4rem;
+            transition: box-shadow .3s ease, background .3s ease;
+        }
+        .cat-hdr.visible .cat-hdr__icon {
+            box-shadow: 0 0 20px rgba(200,168,75,0.3);
+            background: rgba(200,168,75,0.18);
+        }
+        .cat-hdr__title { font-family: var(--fd); font-size: 2.4rem; letter-spacing: 0.04em; line-height: 1; }
+        .cat-hdr__count { font-size: 0.7rem; color: var(--muted); margin-top: 1px; }
+
+        /* ── SUBCAT DIVIDER ── */
+        .subcat {
+            padding: 14px 16px 6px;
+            font-size: 0.58rem; font-weight: 700; letter-spacing: 0.14em;
+            text-transform: uppercase; color: var(--muted);
+        }
+        .subcat span {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(200,168,75,0.15);
+        }
+
+        /* ── LÍNEA HEADER ── */
+        .linea-hdr {
+            display: flex; align-items: center; gap: 12px;
+            padding: 28px 16px 12px;
+            opacity: 0; transform: translateY(8px);
+            transition: opacity .4s ease, transform .4s ease;
+            border-bottom: 1px solid rgba(200,168,75,0.14);
+            margin: 0 16px 4px;
+        }
+        .linea-hdr.visible { opacity: 1; transform: translateY(0); }
+        .linea-hdr__icon { font-size: 1.4rem; line-height: 1; flex-shrink: 0; color: var(--gold); }
+        .linea-hdr__name {
+            font-family: var(--fd); font-size: 1.9rem;
+            letter-spacing: 0.06em; color: var(--text);
+        }
+        .linea-hdr__sub { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em; margin-left: auto; }
+        .linea-hdr__sep { display: none; }
+        .linea-hdr__num { display: none; }
+
+        /* ── HERO BURGER (Ankara featured) ── */
+        .burger-hero {
+            margin: 12px 16px 8px;
+            background: linear-gradient(120deg, rgba(200,168,75,0.07) 0%, var(--card) 60%);
+            border: 1px solid rgba(200,168,75,0.4);
+            border-left: 3px solid var(--gold);
+            border-radius: 16px;
+            display: flex; align-items: center;
+            min-height: 155px;
+            overflow: hidden; cursor: pointer;
+            box-shadow: 0 6px 28px rgba(200,168,75,0.12);
+            transition: border-color .25s, box-shadow .25s, transform .2s;
+            opacity: 0; transform: translateY(12px);
+        }
+        .burger-hero.visible { opacity: 1; transform: translateY(0); }
+        .burger-hero:hover {
+            border-color: rgba(200,168,75,0.7);
+            box-shadow: 0 10px 40px rgba(200,168,75,0.2);
+        }
+        .burger-hero:active { transform: scale(0.99); }
+        .burger-hero__body {
+            flex: 1; min-width: 0;
+            padding: 20px 8px 20px 22px;
+        }
+        .burger-hero__badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: var(--gold); color: #000;
+            font-family: var(--fd); font-size: 0.65rem; letter-spacing: 0.15em;
+            padding: 3px 12px; border-radius: 20px; margin-bottom: 10px;
+        }
+        .burger-hero__name {
+            font-family: var(--fd); font-size: 3rem;
+            letter-spacing: 0.04em; line-height: 1;
+            color: var(--text); margin-bottom: 4px;
+        }
+        .burger-hero__price {
+            font-family: var(--fd); font-size: 1.5rem;
+            color: var(--gold); margin-bottom: 8px;
+        }
+        .burger-hero__desc {
+            font-size: 0.7rem; color: var(--muted); line-height: 1.45;
+        }
+        .burger-hero__img {
+            width: 165px; height: 155px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .burger-hero__img img {
+            width: 100%; height: 100%;
+            object-fit: contain; padding: 8px;
+        }
+
+        /* ── BURGER CARD (horizontal, imagen izquierda) ── */
+        .burger-list {
+            display: flex; flex-direction: column;
+            gap: 10px;
+            padding: 8px 16px 4px;
+        }
+        .bl-item {
+            display: flex; flex-direction: row;
+            background: var(--card);
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            min-height: 130px;
+            opacity: 0; transform: translateY(16px);
+            transition: opacity .4s ease, transform .4s ease, border-color .25s, box-shadow .25s;
+        }
+        .bl-item.visible { opacity: 1; transform: translateY(0); }
+        .bl-item:hover {
+            border-color: rgba(200,168,75,0.4);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4), 0 0 0 1px rgba(200,168,75,0.1);
+        }
+        .bl-item:active { transform: scale(0.99); }
+
+        .bl-item__img {
+            width: 42%; flex-shrink: 0;
+            overflow: hidden; position: relative;
+            aspect-ratio: 1;
+        }
+        .bl-item__img img {
+            width: 100%; height: 100%;
+            object-fit: cover; object-position: center;
+            transition: transform .5s ease;
+            display: block;
+        }
+        .bl-item:hover .bl-item__img img { transform: scale(1.06); }
+
+        /* Imagen cutout (fondo transparente) */
+        .bl-item__img--cutout {
+            background: radial-gradient(ellipse at center, #2a2a2a 0%, var(--card) 72%);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .bl-item__img--cutout img {
+            width: 100%; height: 100%;
+            object-fit: contain; object-position: center;
+            padding: 8px;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+            transition: transform .5s ease;
+        }
+        .bl-item:hover .bl-item__img--cutout img { transform: scale(1.06) translateY(-2px); }
+
+        .bl-item__body {
+            flex: 1; padding: 14px 14px 12px;
+            display: flex; flex-direction: column;
+        }
+        .bl-item__tag {
+            font-size: 0.52rem; font-weight: 700; letter-spacing: 0.14em;
+            text-transform: uppercase; color: var(--accent); margin-bottom: 4px;
+        }
+        .bl-item__badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: var(--gold); color: #000;
+            font-family: var(--fd); font-size: 0.6rem; letter-spacing: 0.13em;
+            padding: 2px 10px; border-radius: 20px; margin-bottom: 5px;
+        }
+        .bl-item__name {
+            font-family: var(--fd); font-size: 1.9rem;
+            letter-spacing: 0.03em; line-height: 1; color: var(--text);
+            margin-bottom: 4px;
+        }
+        .bl-item__price {
+            font-family: var(--fd); font-size: 1.15rem;
+            color: var(--gold); letter-spacing: 0.03em;
+            margin-bottom: 6px;
+        }
+        .bl-item__desc {
+            font-size: 0.72rem; color: var(--muted); line-height: 1.5;
+        }
+        .bl-item__footer {
+            display: flex; align-items: center; justify-content: flex-end;
+            margin-top: 12px;
+        }
+        .bl-item__btn {
+            background: var(--gold); color: #000;
+            font-family: var(--fd); font-size: 0.85rem; letter-spacing: 0.1em;
+            padding: 7px 20px; border-radius: 20px; border: none; cursor: pointer;
+            transition: background .2s, transform .15s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .bl-item__btn:hover { background: var(--accent); transform: scale(1.04); }
+
+        /* ── AGOTADO ── */
+        .bl-item--agotado,
+        .bl-item--agotado.visible { opacity: 0.45 !important; pointer-events: none; }
+        .bl-item--agotado .bl-item__img { position: relative; }
+        .bl-item--agotado .bl-item__img::after {
+            content: 'AGOTADO';
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--fd); font-size: 1rem; letter-spacing: 0.14em;
+            color: #fff;
+        }
+
+        /* ── LIGHTBOX ── */
+        .lightbox {
+            position: fixed; inset: 0; z-index: 600;
+            background: #000;
+            display: none; align-items: center; justify-content: center;
+            flex-direction: column; gap: 18px;
+            padding: 24px;
+        }
+        .lightbox.open { display: flex; }
+        .lightbox__img {
+            max-width: min(90vw, 480px);
+            max-height: 62vh;
+            width: auto; height: auto;
+            object-fit: contain;
+            border-radius: 12px;
+            display: block;
+        }
+        .lightbox__name {
+            font-family: var(--fd); font-size: clamp(1.6rem, 7vw, 2.4rem);
+            letter-spacing: 0.06em; color: var(--text); text-align: center;
+        }
+        .lightbox__price {
+            font-family: var(--fd); font-size: 1.2rem; color: var(--gold);
+        }
+        .lightbox__close {
+            position: absolute; top: 20px; right: 20px;
+            width: 38px; height: 38px; border-radius: 50%;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+            color: #fff; font-size: 1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: background .2s;
+        }
+        .lightbox__close:hover { background: rgba(255,255,255,0.2); }
+
+        /* ── PERSONALIZA STRIP ── */
+        .strip-promo {
+            margin: 0; padding: 18px 16px;
+            background: linear-gradient(135deg, rgba(200,168,75,0.09), rgba(232,137,26,0.06));
+            border-top: 2px solid var(--gold);
+            border-bottom: 1px solid rgba(200,168,75,0.2);
+        }
+        .strip-promo__title {
+            font-family: var(--fd); font-size: 1.15rem; letter-spacing: 0.06em;
+            color: var(--text); margin-bottom: 8px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .strip-promo__title i { color: var(--gold); }
+        .strip-promo__opts { display: flex; gap: 10px; flex-wrap: wrap; }
+        .strip-promo__opt {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(200,168,75,0.08); border: 1px solid rgba(200,168,75,0.22);
+            border-radius: 6px; padding: 10px 14px;
+            flex: 1; min-width: 140px;
+        }
+        .strip-promo__opt-icon { color: var(--gold); font-size: 1.1rem; }
+        .strip-promo__opt-name { font-family: var(--fd); font-size: 0.95rem; letter-spacing: 0.04em; }
+        .strip-promo__opt-price { font-family: var(--fd); font-size: 1rem; color: var(--accent); margin-left: auto; }
+
+        /* ── ENTRY ROW (sin foto) ── */
+        .entries { display: flex; flex-direction: column; }
+        .entry {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            padding: 12px 16px; gap: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .entry:last-child { border-bottom: none; }
+        .entry__body { flex: 1; }
+        .entry__name { font-family: var(--fd); font-size: 1rem; letter-spacing: 0.04em; margin-bottom: 2px; }
+        .entry__desc { font-size: 0.72rem; color: var(--muted); line-height: 1.4; }
+        .entry__price { font-family: var(--fd); font-size: 1rem; color: var(--gold); flex-shrink: 0; padding-top: 2px; }
+
+        /* ── EXTRAS GRID ── */
+        .extras-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            border-top: 1px solid var(--border);
+        }
+        .xtra {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 14px; gap: 8px;
+            border-bottom: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+        }
+        .xtra:nth-child(even) { border-right: none; }
+        .xtra__name { font-size: 0.78rem; font-weight: 500; line-height: 1.25; }
+        .xtra__price { font-family: var(--fd); font-size: 0.9rem; color: var(--gold); flex-shrink: 0; }
+
+        /* ── SALSA GRID ── */
+        .salsa-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 8px 16px 16px;
+        }
+        .salsa-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            text-align: center;
+            cursor: default;
+            opacity: 0; transform: translateY(8px);
+            transition: opacity .35s ease, transform .35s ease, border-color .25s;
+        }
+        .salsa-card.visible { opacity: 1; transform: translateY(0); }
+        .salsa-card:hover { border-color: rgba(200,168,75,0.3); }
+        .salsa-card__img {
+            width: 100%; aspect-ratio: 1;
+            background: var(--card);
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden;
+        }
+        .salsa-card__img img {
+            width: 100%; height: 100%;
+            object-fit: contain;
+            padding: 10px;
+            transition: transform .3s ease;
+        }
+        .salsa-card:hover .salsa-card__img img { transform: scale(1.08); }
+        .salsa-card__name {
+            font-size: 0.58rem; font-weight: 700;
+            letter-spacing: 0.06em; text-transform: uppercase;
+            color: var(--text); padding: 6px 6px 2px;
+            line-height: 1.2;
+        }
+        .salsa-card__price {
+            font-family: var(--fd); font-size: 0.85rem;
+            color: var(--gold); padding-bottom: 8px;
+        }
+
+        /* ── POSTRE / COMBO GRID ── */
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            padding: 8px 16px 16px;
+        }
+        .product-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            cursor: pointer;
+            opacity: 0; transform: translateY(12px);
+            transition: opacity .35s ease, transform .35s ease, border-color .25s, box-shadow .25s;
+        }
+        .product-card.visible { opacity: 1; transform: translateY(0); }
+        .product-card:hover {
+            border-color: rgba(200,168,75,0.35);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .product-card:active { transform: scale(0.98); }
+        .product-card__img {
+            width: 100%; aspect-ratio: 1;
+            background: var(--card);
+            overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .product-card__img img {
+            width: 100%; height: 100%;
+            object-fit: contain;
+            padding: 12px;
+            transition: transform .4s ease;
+        }
+        .product-card:hover .product-card__img img { transform: scale(1.06); }
+        .product-card__body { padding: 10px 12px 12px; }
+        .product-card__name {
+            font-family: var(--fd); font-size: 1.1rem;
+            letter-spacing: 0.03em; line-height: 1.1;
+            color: var(--text); margin-bottom: 3px;
+        }
+        .product-card__price {
+            font-family: var(--fd); font-size: 0.95rem;
+            color: var(--gold);
+        }
+        .product-card__desc {
+            font-size: 0.65rem; color: var(--muted);
+            line-height: 1.4; margin-top: 4px;
+        }
+
+        /* ── QR ── */
+        .qr-wrap {
+            margin: 32px 16px 16px;
+            background: var(--surface);
+            border: 1px solid rgba(200,168,75,0.15);
+            border-radius: 10px;
+            padding: 24px 20px;
+            text-align: center;
+        }
+        .qr-wrap__label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 4px; }
+        .qr-wrap__title { font-family: var(--fd); font-size: 1.2rem; letter-spacing: 0.05em; margin-bottom: 4px; }
+        .qr-wrap__sub   { font-size: 0.74rem; color: var(--muted); margin-bottom: 18px; }
+        .qr-wrap__img   { width: 150px; height: 150px; margin: 0 auto 12px; border-radius: 6px; background: #fff; padding: 6px; }
+        .qr-wrap__url   { font-size: 0.66rem; color: var(--muted); letter-spacing: 0.04em; }
+
+        /* ── VOLVER ── */
+        .btn-back {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            margin: 0 16px 20px;
+            padding: 12px; border-radius: 6px;
+            border: 1px solid var(--border);
+            color: var(--muted); font-size: 0.8rem;
+            transition: all .2s;
+        }
+        .btn-back:hover { border-color: var(--gold); color: var(--gold); }
+
+        /* ── STICKY FOOTER ── */
+        .footer {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 90;
+            background: rgba(13,13,13,0.97);
+            backdrop-filter: blur(14px);
+            border-top: 1px solid var(--border);
+            padding: 10px 16px;
+            display: flex; gap: 10px;
+        }
+        .footer__btn {
+            flex: 1; padding: 13px 8px;
+            font-family: var(--fd); font-size: 0.95rem; letter-spacing: 0.08em;
+            border-radius: 6px; text-align: center;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all .2s;
+        }
+        .footer__btn--gold { background: var(--gold); color: #000; border: none; }
+        .footer__btn--gold:active { background: var(--accent); }
+        .footer__btn--out { background: none; border: 1px solid var(--border); color: var(--muted); }
+        .footer__btn--out:active { border-color: var(--gold); color: var(--gold); }
+        @media (min-width: 601px) {
+            .footer { left: calc(50% - 300px); right: calc(50% - 300px); }
+        }
+
+        /* ── DESKTOP ── */
+        @media (min-width: 640px) {
+            .bl-item__name { font-size: 1.5rem; }
+            .salsa-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        @media (min-width: 768px) {
+            .linea-hdr { padding: 40px 16px 30px; }
+            .strip-promo { padding: 20px 20px; }
+        }
+        @media (min-width: 960px) {
+            .extras-grid { grid-template-columns: repeat(4,1fr); }
+            .xtra:nth-child(4n) { border-right: none; }
+            .xtra:nth-child(even) { border-right: 1px solid var(--border); }
+            .salsa-grid { grid-template-columns: repeat(5, 1fr); }
+        }
+    </style>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K7LBWFPF"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<!-- POPUP CARTA -->
+<div id="popup-overlay" style="position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;padding:20px">
+    <div style="background:var(--surface);border:1px solid rgba(200,168,75,0.2);border-radius:10px;max-width:360px;width:100%;overflow:hidden;position:relative;animation:popupIn 0.35s cubic-bezier(.34,1.56,.64,1)">
+        <div style="height:4px;background:linear-gradient(90deg,var(--gold),var(--accent))"></div>
+        <div id="popup-img-wrap" style="display:none;width:100%;aspect-ratio:16/9;overflow:hidden">
+            <img id="popup-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+        </div>
+        <div style="padding:24px 24px 22px;text-align:center">
+            <button onclick="closePopup()" style="position:absolute;top:14px;right:14px;background:rgba(0,0,0,0.5);border:none;color:#fff;font-size:0.85rem;cursor:pointer;line-height:1;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center"><i class="fa-solid fa-xmark"></i></button>
+            <div id="popup-eyebrow" style="font-size:0.6rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:8px"></div>
+            <div id="popup-titulo" style="font-family:var(--fd);font-size:1.9rem;letter-spacing:0.05em;line-height:1;color:var(--text);margin-bottom:10px"></div>
+            <div id="popup-texto" style="font-size:0.84rem;color:var(--muted);line-height:1.6;margin-bottom:22px"></div>
+            <a id="popup-cta" href="#" onclick="closePopup()" style="display:none;background:var(--gold);color:#000;font-family:var(--fd);font-size:1.05rem;letter-spacing:0.1em;padding:14px;border-radius:4px;text-decoration:none;margin-bottom:10px;transition:background 0.2s"></a>
+            <button onclick="closePopup()" style="background:none;border:none;color:var(--muted);font-size:0.78rem;cursor:pointer;font-family:var(--fb)">Ahora no</button>
+        </div>
+    </div>
+</div>
+<style>
+@keyframes popupIn {
+    from { opacity:0; transform:scale(0.88) translateY(12px); }
+    to   { opacity:1; transform:scale(1)    translateY(0); }
+}
+</style>
+
+<!-- HEADER -->
+<header class="hdr">
+    <div class="hdr__left">
+        <img src="logo-ankaraburger.png" alt="Ankara Burger" class="hdr__logo">
+        <div>
+            <div class="hdr__name">ANKARA BURGER</div>
+            <div class="hdr__sub">Carta · Castelldefels</div>
+        </div>
+    </div>
+</header>
+
+<!-- TABS -->
+<nav class="tabs" id="tabs">
+    <div class="tab active" data-target="tapas">
+        <i class="fa-solid fa-bowl-food"></i>
+        TAPAS
+    </div>
+    <div class="tab" data-target="hamburguesas">
+        <i class="fa-solid fa-burger"></i>
+        BURGERS
+    </div>
+    <div class="tab" data-target="papas">
+        <i class="fa-solid fa-fire-flame-curved"></i>
+        PATATAS
+    </div>
+    <div class="tab" data-target="extras">
+        <i class="fa-solid fa-circle-plus"></i>
+        EXTRAS
+    </div>
+    <div class="tab" data-target="salsas">
+        <i class="fa-solid fa-droplet"></i>
+        SALSAS
+    </div>
+    <div class="tab" data-target="postres">
+        <i class="fa-solid fa-cake-candles"></i>
+        POSTRES
+    </div>
+</nav>
+
+<div class="wrap">
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox__close" onclick="closeLightbox()"><i class="fa-solid fa-xmark"></i></button>
+    <img class="lightbox__img" id="lb-img" src="" alt="">
+    <div class="lightbox__name" id="lb-name"></div>
+    <div class="lightbox__price" id="lb-price"></div>
+</div>
+
+<!-- ════════════════════════════
+     TAPAS
+════════════════════════════ -->
+<section id="tapas">
+    <div class="cat-hdr">
+        <div class="cat-hdr__icon"><i class="fa-solid fa-bowl-food"></i></div>
+        <div>
+            <div class="cat-hdr__title">TAPAS</div>
+            <div class="cat-hdr__count">Para empezar</div>
+        </div>
+    </div>
+
+    <div class="burger-list">
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/nachos.webp','NACHOS','10,50')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/nachos.webp" alt="Nachos" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">NACHOS</div>
+                <div class="bl-item__price">10,50</div>
+                <div class="bl-item__desc">Con salsa cheddar, guacamole, queso crema, pico de gallo y jalapeños</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/nachos.webp','NACHOS','10,50')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Pollo rebozado.webp','POLLO REBOZADO','8,50')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Pollo rebozado.webp" alt="Pollo rebozado" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">POLLO REBOZADO</div>
+                <div class="bl-item__price">8,50</div>
+                <div class="bl-item__desc">7 piezas de pollo rebozado con salsa a elección</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Pollo rebozado.webp','POLLO REBOZADO','8,50')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Tequeños.webp','TEQUEÑOS','8,50')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Tequeños.webp" alt="Tequeños" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">TEQUEÑOS</div>
+                <div class="bl-item__price">8,50</div>
+                <div class="bl-item__desc">7 tequeños de mozzarella con salsa a elección</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Tequeños.webp','TEQUEÑOS','8,50')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Croquetas.webp','CROQUETAS','9')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Croquetas.webp" alt="Croquetas" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">CROQUETAS</div>
+                <div class="bl-item__price">9</div>
+                <div class="bl-item__desc">6 croquetas de jamón ibérico, pollo o rabo de toro con salsa a elección</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Croquetas.webp','CROQUETAS','9')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/bastones mozzarella.webp','BASTONES','7,50')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/bastones mozzarella.webp" alt="Bastones mozzarella" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__badge">★ MVP</div>
+                <div class="bl-item__name">BASTONES</div>
+                <div class="bl-item__price">7,50</div>
+                <div class="bl-item__desc">9 bastones de mozzarella con salsa a elección</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/bastones mozzarella.webp','BASTONES','7,50')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Nuggets.webp','NUGGETS','7,50')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Nuggets.webp" alt="Nuggets" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">NUGGETS</div>
+                <div class="bl-item__price">7,50</div>
+                <div class="bl-item__desc">8 nuggets de pollo con salsa a elección</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Nuggets.webp','NUGGETS','7,50')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<!-- ════════════════════════════
+     HAMBURGUESAS
+════════════════════════════ -->
+<section id="hamburguesas">
+
+    <div class="strip-promo">
+        <div class="strip-promo__title"><i class="fa-solid fa-sliders"></i> PERSONALIZA TU BURGER</div>
+        <div class="strip-promo__opts">
+            <div class="strip-promo__opt">
+                <span class="strip-promo__opt-icon"><i class="fa-solid fa-fire-flame-curved"></i></span>
+                <span class="strip-promo__opt-name">+ Carne smash</span>
+                <span class="strip-promo__opt-price">2,50</span>
+            </div>
+            <div class="strip-promo__opt">
+                <span class="strip-promo__opt-icon"><i class="fa-solid fa-bowl-food"></i></span>
+                <span class="strip-promo__opt-name">+ Patatas</span>
+                <span class="strip-promo__opt-price">2</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- LÍNEA ANKARA -->
+    <div class="linea-hdr cat-hdr">
+        <div class="linea-hdr__icon"><i class="fa-solid fa-burger" style="color:var(--gold)"></i></div>
+        <div class="linea-hdr__name">LÍNEA ANKARA</div>
+        <div class="linea-hdr__sub">Las originales · 3 burgers</div>
+    </div>
+
+    <div class="burger-list">
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Ankara.webp','ANKARA','15,90')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Ankara.webp" alt="Ankara" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__badge">★ LA MÁS FAMOSA</div>
+                <div class="bl-item__name">ANKARA</div>
+                <div class="bl-item__price">15,90</div>
+                <div class="bl-item__desc">Pan de patata, triple carne smash, cheddar, bacon, bañada en cheddar y bacon. Se sirve con guantes</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Ankara.webp','ANKARA','15,90')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/1.4 de ankara.webp','1/4 DE ANKARA','12,50')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/1.4 de ankara.webp" alt="1/4 de Ankara" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">1/4 DE ANKARA</div>
+                <div class="bl-item__price">12,50</div>
+                <div class="bl-item__desc">Pan de patata, doble carne smash, cheddar, bacon, cebolla cruda y salsa 1/4 de ankara</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/1.4 de ankara.webp','1/4 DE ANKARA','12,50')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Torre ankara.webp','TORRE ANKARA','25')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Torre ankara.webp" alt="Torre Ankara" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">TORRE ANKARA</div>
+                <div class="bl-item__price">25</div>
+                <div class="bl-item__desc">Dos hamburguesas dobles con lonchas de cheddar y tiras de bacon bañadas en cheddar y bacon triturado</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Torre ankara.webp','TORRE ANKARA','25')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LÍNEA FUTBOLERA -->
+    <div class="linea-hdr cat-hdr">
+        <div class="linea-hdr__icon"><i class="fa-solid fa-futbol" style="color:var(--gold)"></i></div>
+        <div class="linea-hdr__name">LÍNEA FUTBOLERA</div>
+        <div class="linea-hdr__sub">8 burgers</div>
+    </div>
+    <div class="burger-list">
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/La scaloneta.webp','LA SCALONETA','14')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/La scaloneta.webp" alt="La Scaloneta" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__badge">★ UNIDADES LIMITADAS</div>
+                <div class="bl-item__name">LA SCALONETA</div>
+                <div class="bl-item__price">14</div>
+                <div class="bl-item__desc">Pan de patata, doble carne smash, cheddar, bacon rebozado, salsa cheddar, bacon triturado y BBQ bourbon</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/La scaloneta.webp','LA SCALONETA','14')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Domingol.webp','DOMINGOL','13')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Domingol.webp" alt="Domingol" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">DOMINGOL</div>
+                <div class="bl-item__price">13</div>
+                <div class="bl-item__desc">Pan de patata, doble carne smash, cheddar, trocitos de bacon, cebolla caramelizada y salsa cheddar</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Domingol.webp','DOMINGOL','13')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/La de oro.webp','LA DE ORO','14')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/La de oro.webp" alt="La de Oro" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__badge">★ BEST SELLER</div>
+                <div class="bl-item__name">LA DE ORO</div>
+                <div class="bl-item__price">14</div>
+                <div class="bl-item__desc">Pan de patata, doble carne smash, cheddar, mermelada de bacon, cebolla crispy y mayonesa candy bacon</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/La de oro.webp','LA DE ORO','14')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Mano a Mano.webp','MANO A MANO','12,50')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Mano a Mano.webp" alt="Mano a Mano" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">MANO A MANO</div>
+                <div class="bl-item__price">12,50</div>
+                <div class="bl-item__desc">Pan de patata, doble carne smash, cheddar, lechuga, salsa mostaza y miel</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Mano a Mano.webp','MANO A MANO','12,50')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Rustica.webp','RÚSTICA','12,50')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Rustica.webp" alt="Rústica" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__badge">★ RECOMENDACIÓN DEL CHEF</div>
+                <div class="bl-item__name">RÚSTICA</div>
+                <div class="bl-item__price">12,50</div>
+                <div class="bl-item__desc">Pan de patata, doble carne smash, cheddar, lechuga, tomate, huevo frito y salsa ankara</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Rustica.webp','RÚSTICA','12,50')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Fuerte al medio.webp','FUERTE AL MEDIO','12,50')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Fuerte al medio.webp" alt="Fuerte al Medio" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">FUERTE AL MEDIO</div>
+                <div class="bl-item__price">12,50</div>
+                <div class="bl-item__desc">Pan de patata, doble carne smash, mozzarella, tomate, albahaca y mayonesa de ajo y perejil</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Fuerte al medio.webp','FUERTE AL MEDIO','12,50')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Qatar 22.webp','QATAR 22','12,50')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Qatar 22.webp" alt="Qatar 22" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">QATAR 22</div>
+                <div class="bl-item__price">12,50</div>
+                <div class="bl-item__desc">Pan de patata, doble carne smash, provolone, lechuga, tomate y mayonesa de pimiento asado</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Qatar 22.webp','QATAR 22','12,50')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Doble amarilla.webp','DOBLE AMARILLA','11,50')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Doble amarilla.webp" alt="Doble Amarilla" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">DOBLE AMARILLA</div>
+                <div class="bl-item__price">11,50</div>
+                <div class="bl-item__desc">Pan de patata, doble carne smash, cheddar y salsa ankara</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Doble amarilla.webp','DOBLE AMARILLA','11,50')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LÍNEA ARGENTINA -->
+    <div class="linea-hdr cat-hdr">
+        <div class="linea-hdr__icon">🇦🇷</div>
+        <div class="linea-hdr__name">LÍNEA ARGENTINA</div>
+        <div class="linea-hdr__sub">3 burgers</div>
+    </div>
+    <div class="burger-list">
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/La campeona.webp','LA CAMPEONA','15,50')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/La campeona.webp" alt="La Campeona" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">LA CAMPEONA</div>
+                <div class="bl-item__price">15,50</div>
+                <div class="bl-item__desc">Pan de patata, doble carne smash, provolone, chorizo, lechuga, tomate y mayonesa de chimi</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/La campeona.webp','LA CAMPEONA','15,50')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Roja directa.webp','ROJA DIRECTA','17')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Roja directa.webp" alt="Roja Directa" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__badge">★ LA MÁS ARGENTA</div>
+                <div class="bl-item__name">ROJA DIRECTA</div>
+                <div class="bl-item__price">17</div>
+                <div class="bl-item__desc">Pan casero, milanesa de ternera, lechuga, tomate y salsa a elección</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Roja directa.webp','ROJA DIRECTA','17')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Choripan.webp','CHORIPÁN','13,50')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Choripan.webp" alt="Choripán" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">CHORIPÁN</div>
+                <div class="bl-item__price">13,50</div>
+                <div class="bl-item__desc">Pan casero con dos chorizos, lechuga, tomate, salsa criolla y chimichurri</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Choripan.webp','CHORIPÁN','13,50')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MENÚ INFANTIL -->
+    <div class="linea-hdr cat-hdr">
+        <div class="linea-hdr__icon"><i class="fa-solid fa-child" style="color:var(--gold)"></i></div>
+        <div class="linea-hdr__name">MENÚ INFANTIL</div>
+        <div class="linea-hdr__sub">Para los más pequeños</div>
+    </div>
+    <div class="burger-list">
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/menu sin bebida cheese.webp','CHEESEBURGER','11')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/menu sin bebida cheese.webp" alt="Cheeseburger menú infantil" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">CHEESEBURGER</div>
+                <div class="bl-item__price">11</div>
+                <div class="bl-item__desc">Smash burger con cheddar y patatas</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/menu sin bebida cheese.webp','CHEESEBURGER','11')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Combo nuggets sin bebida.webp','NUGGETS MENÚ','10')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Combo nuggets sin bebida.webp" alt="Nuggets menú infantil" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">NUGGETS MENÚ</div>
+                <div class="bl-item__price">10</div>
+                <div class="bl-item__desc">10 nuggets de pollo crujientes y patatas</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Combo nuggets sin bebida.webp','NUGGETS MENÚ','10')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<!-- ════════════════════════════
+     PAPAS
+════════════════════════════ -->
+<section id="papas">
+    <div class="cat-hdr">
+        <div class="cat-hdr__icon"><i class="fa-solid fa-fire-flame-curved"></i></div>
+        <div>
+            <div class="cat-hdr__title">PATATAS</div>
+            <div class="cat-hdr__count">El acompañamiento perfecto</div>
+        </div>
+    </div>
+
+    <div class="burger-list">
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Patatas ankara.webp','PATATAS ANKARA','6,90')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Patatas ankara.webp" alt="Patatas Ankara" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__badge">★ PERFECTAS PARA COMPARTIR</div>
+                <div class="bl-item__name">PATATAS ANKARA</div>
+                <div class="bl-item__price">6,90</div>
+                <div class="bl-item__desc">Patatas fritas con salsa cheddar y bacon triturado</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Patatas ankara.webp','PATATAS ANKARA','6,90')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Patatas bravas.webp','PATATAS BRAVAS','6,50')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Patatas bravas.webp" alt="Patatas bravas" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">PATATAS BRAVAS</div>
+                <div class="bl-item__price">6,50</div>
+                <div class="bl-item__desc">Patatas fritas caseras con salsa brava y allioli</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Patatas bravas.webp','PATATAS BRAVAS','6,50')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Racion fritas.webp','PATATAS','4,50')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Racion fritas.webp" alt="Patatas" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">PATATAS</div>
+                <div class="bl-item__price">4,50</div>
+                <div class="bl-item__desc">Ración de patatas fritas caseras</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Racion fritas.webp','PATATAS','4,50')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+    </div>
+
+</section>
+
+<!-- ════════════════════════════
+     EXTRAS
+════════════════════════════ -->
+<section id="extras">
+    <div class="cat-hdr">
+        <div class="cat-hdr__icon"><i class="fa-solid fa-circle-plus"></i></div>
+        <div>
+            <div class="cat-hdr__title">EXTRAS</div>
+            <div class="cat-hdr__count">Añade a tu burger</div>
+        </div>
+    </div>
+
+    <div class="subcat"><span>A 0,80€</span></div>
+    <div class="extras-grid">
+        <div class="xtra"><span class="xtra__name">Salsa a elección</span><span class="xtra__price">0,80</span></div>
+        <div class="xtra"><span class="xtra__name">Cheddar</span><span class="xtra__price">0,80</span></div>
+        <div class="xtra"><span class="xtra__name">Tomate</span><span class="xtra__price">0,80</span></div>
+        <div class="xtra"><span class="xtra__name">Lechuga</span><span class="xtra__price">0,80</span></div>
+        <div class="xtra"><span class="xtra__name">Albahaca</span><span class="xtra__price">0,80</span></div>
+        <div class="xtra"><span class="xtra__name">Pepinillo</span><span class="xtra__price">0,80</span></div>
+        <div class="xtra"><span class="xtra__name">Bacon</span><span class="xtra__price">0,80</span></div>
+        <div class="xtra"><span class="xtra__name">Bacon triturado</span><span class="xtra__price">0,80</span></div>
+        <div class="xtra"><span class="xtra__name">Cebolla picada</span><span class="xtra__price">0,80</span></div>
+        <div class="xtra"><span class="xtra__name">Cebolla crispy</span><span class="xtra__price">0,80</span></div>
+        <div class="xtra"><span class="xtra__name">Mozzarella</span><span class="xtra__price">0,80</span></div>
+        <div class="xtra"><span class="xtra__name">Provolone</span><span class="xtra__price">0,80</span></div>
+    </div>
+    <div class="subcat"><span>A 1,00€ O MÁS</span></div>
+    <div class="extras-grid">
+        <div class="xtra"><span class="xtra__name">Salsa cheddar</span><span class="xtra__price">1,00</span></div>
+        <div class="xtra"><span class="xtra__name">Queso crema</span><span class="xtra__price">1,00</span></div>
+        <div class="xtra"><span class="xtra__name">Cebolla caramelizada</span><span class="xtra__price">1,00</span></div>
+        <div class="xtra"><span class="xtra__name">Huevo frito</span><span class="xtra__price">1,00</span></div>
+        <div class="xtra"><span class="xtra__name">Guacamole</span><span class="xtra__price">1,20</span></div>
+        <div class="xtra"><span class="xtra__name">Chorizo</span><span class="xtra__price">2,50</span></div>
+    </div>
+</section>
+
+<!-- ════════════════════════════
+     SALSAS
+════════════════════════════ -->
+<section id="salsas">
+    <div class="cat-hdr">
+        <div class="cat-hdr__icon"><i class="fa-solid fa-droplet"></i></div>
+        <div>
+            <div class="cat-hdr__title">SALSAS</div>
+            <div class="cat-hdr__count">A tu gusto · 0,80€ c/u</div>
+        </div>
+    </div>
+
+    <div class="salsa-grid">
+        <div class="salsa-card" onclick="void(0)">
+            <div class="salsa-card__img"><img src="imagenes_nuevas/salsa ankara.webp" alt="Salsa Ankara" loading="lazy"></div>
+            <div class="salsa-card__name">Ankara</div>
+            <div class="salsa-card__price">0,80</div>
+        </div>
+        <div class="salsa-card">
+            <div class="salsa-card__img"><img src="imagenes_nuevas/Salsa 1.4 de ankara.webp" alt="Salsa 1/4 Ankara" loading="lazy"></div>
+            <div class="salsa-card__name">1/4 Ankara</div>
+            <div class="salsa-card__price">0,80</div>
+        </div>
+        <div class="salsa-card">
+            <div class="salsa-card__img"><img src="imagenes_nuevas/salsa cheddar.webp" alt="Salsa Cheddar" loading="lazy"></div>
+            <div class="salsa-card__name">Cheddar</div>
+            <div class="salsa-card__price">1,00</div>
+        </div>
+        <div class="salsa-card">
+            <div class="salsa-card__img"><img src="imagenes_nuevas/salsa mayo de chimi.webp" alt="Mayo Chimi" loading="lazy"></div>
+            <div class="salsa-card__name">Mayo Chimi</div>
+            <div class="salsa-card__price">0,80</div>
+        </div>
+        <div class="salsa-card">
+            <div class="salsa-card__img"><img src="imagenes_nuevas/salsa ajo y perejil.webp" alt="Ajo y Perejil" loading="lazy"></div>
+            <div class="salsa-card__name">Ajo y Perejil</div>
+            <div class="salsa-card__price">0,80</div>
+        </div>
+        <div class="salsa-card">
+            <div class="salsa-card__img"><img src="imagenes_nuevas/salsa pimiento asado.webp" alt="Pimiento Asado" loading="lazy"></div>
+            <div class="salsa-card__name">Pimiento Asado</div>
+            <div class="salsa-card__price">0,80</div>
+        </div>
+        <div class="salsa-card">
+            <div class="salsa-card__img"><img src="imagenes_nuevas/salsa mostaza.webp" alt="Mostaza" loading="lazy"></div>
+            <div class="salsa-card__name">Mostaza</div>
+            <div class="salsa-card__price">0</div>
+        </div>
+        <div class="salsa-card">
+            <div class="salsa-card__img"><img src="imagenes_nuevas/salsa mostaza y miel.webp" alt="Mostaza y Miel" loading="lazy"></div>
+            <div class="salsa-card__name">Mostaza y Miel</div>
+            <div class="salsa-card__price">0,80</div>
+        </div>
+        <div class="salsa-card">
+            <div class="salsa-card__img"><img src="imagenes_nuevas/salsa allioli.webp" alt="Alioli" loading="lazy"></div>
+            <div class="salsa-card__name">Alioli</div>
+            <div class="salsa-card__price">0,80</div>
+        </div>
+        <div class="salsa-card">
+            <div class="salsa-card__img"><img src="imagenes_nuevas/Mayonesa.webp" alt="Mayonesa" loading="lazy"></div>
+            <div class="salsa-card__name">Mayonesa</div>
+            <div class="salsa-card__price">0</div>
+        </div>
+        <div class="salsa-card">
+            <div class="salsa-card__img"><img src="imagenes_nuevas/salsa ketchup.webp" alt="Ketchup" loading="lazy"></div>
+            <div class="salsa-card__name">Ketchup</div>
+            <div class="salsa-card__price">0</div>
+        </div>
+        <div class="salsa-card">
+            <div class="salsa-card__img"><img src="imagenes_nuevas/salsa brava.webp" alt="Brava" loading="lazy"></div>
+            <div class="salsa-card__name">Brava</div>
+            <div class="salsa-card__price">0,80</div>
+        </div>
+        <div class="salsa-card">
+            <div class="salsa-card__img"><img src="imagenes_nuevas/salsa bbq y bbq bourbon.webp" alt="BBQ Bourbon" loading="lazy"></div>
+            <div class="salsa-card__name">BBQ Bourbon</div>
+            <div class="salsa-card__price">0,80</div>
+        </div>
+        <div class="salsa-card">
+            <div class="salsa-card__img"><img src="imagenes_nuevas/salsa candy bacon.webp" alt="Candy Bacon" loading="lazy"></div>
+            <div class="salsa-card__name">Candy Bacon</div>
+            <div class="salsa-card__price">0,80</div>
+        </div>
+    </div>
+</section>
+
+<!-- ════════════════════════════
+     POSTRES
+════════════════════════════ -->
+<section id="postres">
+    <div class="cat-hdr">
+        <div class="cat-hdr__icon"><i class="fa-solid fa-cake-candles"></i></div>
+        <div>
+            <div class="cat-hdr__title">POSTRES</div>
+            <div class="cat-hdr__count">El final perfecto</div>
+        </div>
+    </div>
+
+    <div class="burger-list">
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Postre chocotorta.webp','CHOCOTORTA','4')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Postre chocotorta.webp" alt="Chocotorta" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__badge">★ LA JOYA</div>
+                <div class="bl-item__name">CHOCOTORTA</div>
+                <div class="bl-item__price">4</div>
+                <div class="bl-item__desc">Tarta argentina de chocolate y dulce de leche</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Postre chocotorta.webp','CHOCOTORTA','4')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Postre flan casero.webp','FLAN CON DULCE DE LECHE Y NATA','3,50')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Postre flan casero.webp" alt="Flan con dulce de leche y nata" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">FLAN CON DULCE DE LECHE Y NATA</div>
+                <div class="bl-item__price">3,50</div>
+                <div class="bl-item__desc">Flan casero con dulce de leche argentino y nata montada</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Postre flan casero.webp','FLAN CON DULCE DE LECHE Y NATA','3,50')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/Tarta de queso.webp','TARTA DE QUESO','6,50')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/Tarta de queso.webp" alt="Tarta de queso" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">TARTA DE QUESO</div>
+                <div class="bl-item__price">6,50</div>
+                <div class="bl-item__desc">Tarta de queso cremosa</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/Tarta de queso.webp','TARTA DE QUESO','6,50')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+        <div class="bl-item" onclick="openLightbox('imagenes_nuevas/helados.webp','HELADOS','4')">
+            <div class="bl-item__img bl-item__img--cutout"><img src="imagenes_nuevas/helados.webp" alt="Helados" loading="lazy"></div>
+            <div class="bl-item__body">
+                <div class="bl-item__name">HELADOS</div>
+                <div class="bl-item__price">4</div>
+                <div class="bl-item__desc">3 bolas de helado artesanal a elección</div>
+                <div class="bl-item__footer"><button class="bl-item__btn" onclick="event.stopPropagation();openLightbox('imagenes_nuevas/helados.webp','HELADOS','4')"><i class="fa-solid fa-magnifying-glass"></i> VER</button></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- QR -->
+<div class="qr-wrap">
+    <div class="qr-wrap__label">Comparte la carta</div>
+    <div class="qr-wrap__title">CARTA DIGITAL</div>
+    <div class="qr-wrap__sub">Escanea o comparte con quien quieras</div>
+    <div id="qr-code" class="qr-wrap__img" style="display:flex;align-items:center;justify-content:center;"></div>
+    <div class="qr-wrap__url">ankaraburger.com/carta.html</div>
+</div>
+
+<a href="index.html" class="btn-back">
+    <i class="fa-solid fa-arrow-left"></i> Volver a la web
+</a>
+
+</div><!-- /wrap -->
+
+<div style="text-align:center;padding:24px 20px 40px;font-size:0.7rem;color:#555;">
+    <a href="aviso-legal.html" style="color:inherit;text-decoration:underline;text-underline-offset:3px;">Aviso legal</a> ·
+    <a href="privacidad.html" style="color:inherit;text-decoration:underline;text-underline-offset:3px;">Privacidad</a> ·
+    <a href="cookies.html" style="color:inherit;text-decoration:underline;text-underline-offset:3px;">Cookies</a>
+</div>
+
+
+<script>
+    // ── SUPABASE + POPUP ──
+    const SUPA_URL = 'https://evhxekevbgfeticrfcfh.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2aHhla2V2YmdmZXRpY3JmY2ZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MjUwODMsImV4cCI6MjA5NjAwMTA4M30.ymbkuLe57GAv9vC8omi70erUTj7wMBo4TmlSuKBnqyU';
+    const supa = supabase.createClient(SUPA_URL, SUPA_KEY, { auth: { persistSession: false } });
+
+    function closePopup() {
+        document.getElementById('popup-overlay').style.display = 'none';
+        sessionStorage.setItem('ankara_popup_visto', '1');
+    }
+
+    (async () => {
+        const { data } = await supa.from('configuracion').select('clave,valor');
+        if (data) {
+            const c = Object.fromEntries(data.map(r => [r.clave, r.valor]));
+            // Agotados
+            try {
+                const agotados = JSON.parse(c.agotados || '[]');
+                document.querySelectorAll('.bl-item').forEach(item => {
+                    const nombre = item.querySelector('.bl-item__name');
+                    if (nombre && agotados.includes(nombre.textContent.trim())) {
+                        item.classList.add('bl-item--agotado');
+                    }
+                });
+            } catch(e) {}
+
+            if (c.popup_carta_activo === 'true' && !sessionStorage.getItem('ankara_popup_carta_visto')) {
+                document.getElementById('popup-eyebrow').textContent = 'Novedad';
+                document.getElementById('popup-titulo').textContent  = c.popup_carta_titulo || '';
+                document.getElementById('popup-texto').textContent   = c.popup_carta_texto  || '';
+                const cta = document.getElementById('popup-cta');
+                cta.textContent = c.popup_carta_cta_texto || 'VER MÁS';
+                cta.href = c.popup_carta_cta_url || '#';
+                cta.style.display = c.popup_carta_cta_texto ? 'block' : 'none';
+                if (c.popup_carta_imagen_url) {
+                    document.getElementById('popup-img').src = c.popup_carta_imagen_url;
+                    document.getElementById('popup-img-wrap').style.display = 'block';
+                }
+                setTimeout(() => {
+                    document.getElementById('popup-overlay').style.display = 'flex';
+                }, 3000);
+            }
+        }
+    })();
+
+    // ── LIGHTBOX ──
+    function openLightbox(src, name, price) {
+        const lb = document.getElementById('lightbox');
+        document.getElementById('lb-img').src = src;
+        document.getElementById('lb-img').alt = name;
+        document.getElementById('lb-name').textContent = name;
+        document.getElementById('lb-price').textContent = price;
+        lb.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+    // ── TABS ──
+    const tabs   = document.querySelectorAll('.tab');
+    const tabsEl = document.getElementById('tabs');
+    const OFFSET = 106;
+
+    const indicator = document.createElement('div');
+    indicator.className = 'tab-indicator';
+    tabsEl.appendChild(indicator);
+
+    function moveIndicator(tab) {
+        const tabsRect = tabsEl.getBoundingClientRect();
+        const tabRect  = tab.getBoundingClientRect();
+        indicator.style.left  = (tabRect.left - tabsRect.left + tabsEl.scrollLeft) + 'px';
+        indicator.style.width = tabRect.width + 'px';
+    }
+
+    const firstActive = document.querySelector('.tab.active');
+    if (firstActive) {
+        requestAnimationFrame(() => {
+            indicator.style.transition = 'none';
+            moveIndicator(firstActive);
+            requestAnimationFrame(() => { indicator.style.transition = ''; });
+        });
+    }
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            moveIndicator(tab);
+            const el = document.getElementById(tab.dataset.target);
+            if (!el) return;
+            window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - OFFSET, behavior: 'smooth' });
+        });
+    });
+
+    // ── QR CODE ──
+    new QRCode(document.getElementById('qr-code'), {
+        text: 'https://ankaraburger.com/carta.html',
+        width: 136, height: 136,
+        colorDark: '#000000', colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+    });
+
+    // ── ACTIVE TAB ON SCROLL ──
+    const sections = ['tapas','hamburguesas','papas','extras','salsas','postres']
+        .map(id => document.getElementById(id)).filter(Boolean);
+    const sectionIO = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                tabs.forEach(t => {
+                    const isActive = t.dataset.target === e.target.id;
+                    t.classList.toggle('active', isActive);
+                    if (isActive) moveIndicator(t);
+                });
+            }
+        });
+    }, { rootMargin: `-${OFFSET}px 0px -55% 0px`, threshold: 0 });
+    sections.forEach(s => sectionIO.observe(s));
+
+    // ── ENTRANCE ANIMATIONS ──
+    const hdrIO = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                hdrIO.unobserve(e.target);
+            }
+        });
+    }, { rootMargin: '0px 0px -40px 0px', threshold: 0.1 });
+    document.querySelectorAll('.cat-hdr').forEach(el => hdrIO.observe(el));
+
+    // Burger & product list items staggered fade
+    const blIO = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                const siblings = Array.from(e.target.parentElement.querySelectorAll('.bl-item, .product-card'));
+                const idx = siblings.indexOf(e.target);
+                setTimeout(() => e.target.classList.add('visible'), idx * 60);
+                blIO.unobserve(e.target);
+            }
+        });
+    }, { rootMargin: '0px 0px -20px 0px', threshold: 0.05 });
+    document.querySelectorAll('.bl-item, .product-card').forEach(el => blIO.observe(el));
+
+    // Salsa cards staggered fade
+    const salsaIO = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                const siblings = Array.from(e.target.parentElement.querySelectorAll('.salsa-card'));
+                const idx = siblings.indexOf(e.target);
+                setTimeout(() => e.target.classList.add('visible'), idx * 40);
+                salsaIO.unobserve(e.target);
+            }
+        });
+    }, { rootMargin: '0px 0px -20px 0px', threshold: 0.05 });
+    document.querySelectorAll('.salsa-card').forEach(el => salsaIO.observe(el));
+</script>
+</body>
+</html>

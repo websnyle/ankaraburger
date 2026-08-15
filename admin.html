@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Reservas · Ankara Burger</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" href="favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="supabase-js.min.js"></script>
+    <style>
+        :root {
+            --color-bg:      #0a0a0a;
+            --color-surface: #141414;
+            --color-surface2:#1e1e1e;
+            --color-primary: #C8A84B;
+            --color-accent:  #E8891A;
+            --color-text:    #F5F0E8;
+            --color-muted:   #8A7E6E;
+            --color-pending: #E8891A;
+            --color-confirm: #25D366;
+            --color-cancel:  #E53E3E;
+            --font-display:  'Bebas Neue', sans-serif;
+            --font-body:     'Inter', sans-serif;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); min-height: 100vh; }
+
+        /* ── LOGIN ── */
+        .login {
+            position: fixed; inset: 0; z-index: 999;
+            background: var(--color-bg);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .login__box {
+            background: var(--color-surface);
+            border: 1px solid rgba(200,168,75,0.2);
+            border-radius: 6px;
+            padding: 40px 32px;
+            width: 100%; max-width: 340px;
+            text-align: center;
+        }
+        .login__logo { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; margin: 0 auto 16px; border: 2px solid var(--color-primary); }
+        .login__title { font-family: var(--font-display); font-size: 1.6rem; color: var(--color-primary); letter-spacing: 0.1em; margin-bottom: 6px; }
+        .login__sub { font-size: 0.8rem; color: var(--color-muted); margin-bottom: 28px; }
+        .login__input {
+            width: 100%; background: var(--color-surface2);
+            border: 1px solid rgba(200,168,75,0.2); border-radius: 4px;
+            color: var(--color-text); font-family: var(--font-body); font-size: 1rem;
+            padding: 13px 16px; outline: none; margin-bottom: 12px;
+            transition: border-color 0.2s;
+        }
+        .login__input:focus { border-color: var(--color-primary); }
+        .login__btn {
+            width: 100%; background: var(--color-primary); color: #000;
+            font-family: var(--font-display); font-size: 1.1rem; letter-spacing: 0.1em;
+            padding: 14px; border: none; border-radius: 4px; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .login__btn:hover { background: var(--color-accent); }
+        .login__error { color: var(--color-cancel); font-size: 0.8rem; margin-top: 10px; display: none; }
+
+        /* ── HEADER ── */
+        .header {
+            background: var(--color-surface);
+            border-bottom: 1px solid rgba(200,168,75,0.15);
+            padding: 14px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 10;
+        }
+        .header__brand { display: flex; align-items: center; gap: 10px; }
+        .header__logo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(200,168,75,0.3); }
+        .header__title { font-family: var(--font-display); font-size: 1.2rem; color: var(--color-primary); letter-spacing: 0.08em; }
+        .header__sub { font-size: 0.7rem; color: var(--color-muted); }
+        .header__logout { background: none; border: 1px solid rgba(200,168,75,0.2); color: var(--color-muted); font-family: var(--font-body); font-size: 0.78rem; padding: 7px 14px; border-radius: 3px; cursor: pointer; transition: all 0.2s; }
+        .header__logout:hover { border-color: var(--color-cancel); color: var(--color-cancel); }
+
+        /* ── STATS ── */
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(200,168,75,0.1); border-bottom: 1px solid rgba(200,168,75,0.1); }
+        .stat { background: var(--color-surface); padding: 18px 16px; text-align: center; }
+        .stat__num { font-family: var(--font-display); font-size: 2rem; letter-spacing: 0.04em; }
+        .stat__lbl { font-size: 0.65rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; }
+        .stat--pending .stat__num  { color: var(--color-pending); }
+        .stat--confirm .stat__num  { color: var(--color-confirm); }
+        .stat--total   .stat__num  { color: var(--color-primary); }
+
+        /* ── FILTROS ── */
+        .filters { display: flex; gap: 8px; padding: 16px 16px 0; overflow-x: auto; }
+        .filter-btn {
+            flex-shrink: 0; padding: 7px 16px;
+            background: var(--color-surface2); border: 1px solid rgba(200,168,75,0.15);
+            color: var(--color-muted); font-family: var(--font-body); font-size: 0.78rem;
+            font-weight: 500; border-radius: 20px; cursor: pointer; transition: all 0.2s;
+        }
+        .filter-btn.active { background: var(--color-primary); color: #000; border-color: var(--color-primary); }
+
+        /* ── LISTA ── */
+        .lista { padding: 12px 16px 100px; display: flex; flex-direction: column; gap: 10px; }
+        .empty { text-align: center; padding: 60px 20px; color: var(--color-muted); font-size: 0.9rem; }
+        .empty i { font-size: 2.5rem; margin-bottom: 12px; display: block; opacity: 0.3; }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--color-surface);
+            border: 1px solid rgba(200,168,75,0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+        .card.estado-pendiente  { border-left: 3px solid var(--color-pending); }
+        .card.estado-confirmada { border-left: 3px solid var(--color-confirm); }
+        .card.estado-cancelada  { border-left: 3px solid rgba(229,62,62,0.4); opacity: 0.6; }
+        .card__head { padding: 14px 16px 10px; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+        .card__nombre { font-weight: 600; font-size: 0.95rem; }
+        .card__badge {
+            flex-shrink: 0; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em;
+            text-transform: uppercase; padding: 3px 8px; border-radius: 10px;
+        }
+        .badge-pendiente  { background: rgba(232,137,26,0.15); color: var(--color-pending); }
+        .badge-confirmada { background: rgba(37,211,102,0.15); color: var(--color-confirm); }
+        .badge-cancelada  { background: rgba(229,62,62,0.12); color: var(--color-cancel); }
+        .card__info { padding: 0 16px 12px; display: flex; flex-wrap: wrap; gap: 10px; }
+        .card__info-item { display: flex; align-items: center; gap: 5px; font-size: 0.8rem; color: var(--color-muted); }
+        .card__info-item i { color: var(--color-primary); font-size: 0.72rem; }
+        .card__info-item strong { color: var(--color-text); font-weight: 500; }
+        .card__actions { display: flex; border-top: 1px solid rgba(200,168,75,0.08); }
+        .card__btn {
+            flex: 1; padding: 12px 8px; display: flex; align-items: center; justify-content: center; gap: 6px;
+            font-family: var(--font-display); font-size: 0.82rem; letter-spacing: 0.08em;
+            border: none; cursor: pointer; transition: background 0.2s;
+        }
+        .card__btn--confirm { background: rgba(37,211,102,0.1); color: var(--color-confirm); border-right: 1px solid rgba(200,168,75,0.08); }
+        .card__btn--confirm:hover { background: rgba(37,211,102,0.2); }
+        .card__btn--cancel  { background: rgba(229,62,62,0.08); color: var(--color-cancel); }
+        .card__btn--cancel:hover  { background: rgba(229,62,62,0.18); }
+        .card__btn:disabled { opacity: 0.35; cursor: default; }
+
+        /* ── ORIGEN BADGES ── */
+        .badge-origen { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 7px; border-radius: 10px; margin-left: 6px; }
+        .origen-web       { background: rgba(91,155,213,0.15); color: #5B9BD5; }
+        .origen-telefono  { background: rgba(200,168,75,0.15); color: var(--color-primary); }
+        .origen-whatsapp  { background: rgba(37,211,102,0.15); color: var(--color-confirm); }
+        .origen-instagram { background: rgba(193,53,132,0.15); color: #C13584; }
+
+        /* ── MODAL NUEVA RESERVA ── */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 300;
+            background: rgba(0,0,0,0.85);
+            display: flex; align-items: flex-end; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.25s;
+        }
+        .modal-overlay.open { opacity: 1; pointer-events: all; }
+        .modal {
+            background: var(--color-surface);
+            border-radius: 12px 12px 0 0;
+            border-top: 1px solid rgba(200,168,75,0.2);
+            padding: 24px 20px 40px;
+            width: 100%; max-width: 480px;
+            transform: translateY(30px); transition: transform 0.3s;
+        }
+        .modal-overlay.open .modal { transform: translateY(0); }
+        .modal__title { font-family: var(--font-display); font-size: 1.4rem; color: var(--color-primary); letter-spacing: 0.08em; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; }
+        .modal__close { background: none; border: none; color: var(--color-muted); font-size: 1.2rem; cursor: pointer; }
+        .modal__field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+        .modal__field label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-primary); }
+        .modal__field input, .modal__field select {
+            background: var(--color-surface2); border: 1px solid rgba(200,168,75,0.2); border-radius: 3px;
+            color: var(--color-text); font-family: var(--font-body); font-size: 0.92rem;
+            padding: 11px 13px; outline: none; width: 100%; appearance: none; -webkit-appearance: none;
+        }
+        .modal__field input:focus, .modal__field select:focus { border-color: var(--color-primary); }
+        .modal__row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .modal__origen { display: flex; gap: 8px; flex-wrap: wrap; }
+        .modal__origen-btn {
+            flex: 1; min-width: 80px; padding: 9px 8px; border-radius: 3px; border: 1px solid rgba(200,168,75,0.2);
+            background: var(--color-surface2); color: var(--color-muted); font-family: var(--font-body);
+            font-size: 0.78rem; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.2s;
+        }
+        .modal__origen-btn.sel-web       { background: rgba(91,155,213,0.15); color: #5B9BD5; border-color: #5B9BD5; }
+        .modal__origen-btn.sel-telefono  { background: rgba(200,168,75,0.15); color: var(--color-primary); border-color: var(--color-primary); }
+        .modal__origen-btn.sel-whatsapp  { background: rgba(37,211,102,0.15); color: var(--color-confirm); border-color: var(--color-confirm); }
+        .modal__origen-btn.sel-instagram { background: rgba(193,53,132,0.15); color: #C13584; border-color: #C13584; }
+        .modal__submit {
+            width: 100%; padding: 15px; background: var(--color-primary); color: #000;
+            font-family: var(--font-display); font-size: 1.05rem; letter-spacing: 0.1em;
+            border: none; border-radius: 3px; cursor: pointer; margin-top: 8px;
+            transition: background 0.2s;
+        }
+        .modal__submit:hover { background: var(--color-accent); }
+
+        /* ── BTN NUEVA RESERVA ── */
+        .btn-nueva { background: var(--color-primary); color: #000; font-family: var(--font-display); font-size: 0.82rem; letter-spacing: 0.08em; padding: 8px 14px; border: none; border-radius: 3px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
+        .btn-nueva:hover { background: var(--color-accent); }
+        .btn-config { background: none; border: 1px solid rgba(200,168,75,0.25); color: var(--color-muted); font-family: var(--font-body); font-size: 0.78rem; padding: 8px 12px; border-radius: 3px; cursor: pointer; transition: all 0.2s; }
+        .btn-config:hover, .btn-config.active { border-color: var(--color-primary); color: var(--color-primary); }
+
+        /* ── CONFIG PANEL ── */
+        .config-panel { display: none; padding: 20px 16px 80px; }
+        .config-panel.open { display: block; }
+        .config-section { margin-bottom: 28px; }
+        .config-section__title { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-primary); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid rgba(200,168,75,0.12); }
+        .config-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(200,168,75,0.06); gap: 16px; }
+        .config-row:last-child { border-bottom: none; }
+        .config-row__label { font-size: 0.88rem; font-weight: 500; }
+        .config-row__sub { font-size: 0.72rem; color: var(--color-muted); margin-top: 2px; }
+        .config-input { background: var(--color-surface2); border: 1px solid rgba(200,168,75,0.2); border-radius: 3px; color: var(--color-text); font-family: var(--font-body); font-size: 0.9rem; padding: 8px 12px; width: 80px; text-align: center; outline: none; }
+        .config-input:focus { border-color: var(--color-primary); }
+        .config-select { background: var(--color-surface2); border: 1px solid rgba(200,168,75,0.2); border-radius: 3px; color: var(--color-text); font-family: var(--font-body); font-size: 0.85rem; padding: 8px 10px; outline: none; appearance: none; -webkit-appearance: none; }
+        .config-select:focus { border-color: var(--color-primary); }
+
+        /* Toggle switch */
+        .toggle { position: relative; width: 48px; height: 26px; flex-shrink: 0; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; inset: 0; background: var(--color-surface2); border: 1px solid rgba(200,168,75,0.2); border-radius: 13px; cursor: pointer; transition: 0.3s; }
+        .toggle-slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: var(--color-muted); border-radius: 50%; transition: 0.3s; }
+        .toggle input:checked + .toggle-slider { background: rgba(37,211,102,0.15); border-color: var(--color-confirm); }
+        .toggle input:checked + .toggle-slider::before { background: var(--color-confirm); transform: translateX(22px); }
+
+        .config-save { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
+        .btn-save { background: var(--color-primary); color: #000; font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.08em; padding: 13px 24px; border: none; border-radius: 3px; cursor: pointer; transition: background 0.2s; }
+        .btn-save:hover { background: var(--color-accent); }
+        .save-msg { font-size: 0.8rem; color: var(--color-confirm); display: none; }
+        .save-msg.visible { display: block; }
+        .config-info { background: rgba(200,168,75,0.05); border: 1px solid rgba(200,168,75,0.12); border-radius: 4px; padding: 12px 14px; font-size: 0.78rem; color: var(--color-muted); line-height: 1.6; margin-top: 12px; }
+
+        /* ── FILTRO FECHA ── */
+        .fecha-nav { display: flex; align-items: center; gap: 6px; padding: 10px 16px; border-bottom: 1px solid rgba(200,168,75,0.08); flex-wrap: wrap; }
+        .fecha-nav input[type=date] { flex: 1; min-width: 130px; background: var(--color-surface2); border: 1px solid rgba(200,168,75,0.2); border-radius: 3px; color: var(--color-text); font-family: var(--font-body); font-size: 0.85rem; padding: 9px 12px; outline: none; }
+        .fecha-nav input:focus { border-color: var(--color-primary); }
+        .btn-dia {
+            width: 36px; height: 36px; border-radius: 3px;
+            background: var(--color-surface2); border: 1px solid rgba(200,168,75,0.25);
+            color: var(--color-primary); font-size: 1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; flex-shrink: 0;
+        }
+        .btn-dia:hover { background: rgba(200,168,75,0.12); border-color: var(--color-primary); }
+        .btn-bloquear { padding: 9px 12px; border-radius: 3px; border: 1px solid rgba(229,62,62,0.3); background: rgba(229,62,62,0.08); color: #E53E3E; font-family: var(--font-body); font-size: 0.75rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+        .btn-bloquear.bloqueado { border-color: rgba(37,211,102,0.3); background: rgba(37,211,102,0.08); color: var(--color-confirm); }
+        .btn-bloquear:hover { opacity: 0.8; }
+        .btn-hoy { padding: 9px 10px; border-radius: 3px; border: 1px solid rgba(200,168,75,0.25); background: rgba(200,168,75,0.06); color: var(--color-primary); font-size: 0.75rem; font-weight: 700; cursor: pointer; font-family: var(--font-body); transition: all 0.2s; white-space: nowrap; letter-spacing: 0.05em; }
+        .btn-hoy:hover { background: rgba(200,168,75,0.15); }
+
+        /* ── CAPACIDAD ── */
+        .capacidad { padding: 12px 16px; border-bottom: 1px solid rgba(200,168,75,0.08); display: flex; flex-direction: column; gap: 8px; }
+        .cap-row { display: flex; flex-direction: column; gap: 4px; }
+        .cap-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-muted); display: flex; justify-content: space-between; }
+        .cap-label span { color: var(--color-text); font-weight: 700; }
+        .cap-bar { height: 6px; background: var(--color-surface2); border-radius: 3px; overflow: hidden; }
+        .cap-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+
+        /* ── PENDIENTES BANNER ── */
+        .pendientes-banner {
+            background: rgba(232,137,26,0.1);
+            border-bottom: 1px solid rgba(232,137,26,0.25);
+            padding: 10px 16px;
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .pendientes-banner.visible { display: flex; }
+        .pendientes-banner__title {
+            font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--color-accent);
+            display: flex; align-items: center; gap: 6px;
+        }
+        .pendiente-item {
+            background: var(--color-surface);
+            border: 1px solid rgba(232,137,26,0.2);
+            border-radius: 6px;
+            padding: 10px 12px;
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+        }
+        .pendiente-item__info { flex: 1; min-width: 0; }
+        .pendiente-item__nombre { font-size: 0.88rem; font-weight: 600; }
+        .pendiente-item__meta { font-size: 0.75rem; color: var(--color-muted); margin-top: 1px; }
+        .pendiente-item__actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .btn-confirm-small {
+            padding: 7px 12px; border-radius: 3px; border: none; cursor: pointer;
+            font-family: var(--font-display); font-size: 0.75rem; letter-spacing: 0.06em;
+            background: rgba(37,211,102,0.15); color: var(--color-confirm);
+            transition: background 0.2s;
+        }
+        .btn-confirm-small:hover { background: rgba(37,211,102,0.28); }
+        .btn-cancel-small {
+            padding: 7px 10px; border-radius: 3px; border: none; cursor: pointer;
+            background: rgba(229,62,62,0.1); color: var(--color-cancel);
+            font-size: 0.8rem; transition: background 0.2s;
+        }
+        .btn-cancel-small:hover { background: rgba(229,62,62,0.2); }
+
+        /* ── STATS PANEL ── */
+        .stats-panel { display: none; padding: 20px 16px 80px; }
+        .stats-panel.open { display: block; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+        .stat-card {
+            background: var(--color-surface);
+            border: 1px solid rgba(200,168,75,0.1);
+            border-radius: 6px;
+            padding: 16px 14px;
+            text-align: center;
+        }
+        .stat-card__num { font-family: var(--font-display); font-size: 1.8rem; letter-spacing: 0.04em; color: var(--color-primary); line-height: 1; margin-bottom: 4px; }
+        .stat-card__lbl { font-size: 0.65rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+        .stat-card--wide { grid-column: span 2; }
+        .origen-bar { display: flex; flex-direction: column; gap: 8px; }
+        .origen-row { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; }
+        .origen-row__label { width: 90px; flex-shrink: 0; color: var(--color-muted); }
+        .origen-row__bar-wrap { flex: 1; height: 6px; background: var(--color-surface2); border-radius: 3px; overflow: hidden; }
+        .origen-row__bar { height: 100%; border-radius: 3px; transition: width 0.6s; }
+        .origen-row__pct { width: 36px; text-align: right; color: var(--color-text); font-weight: 600; font-size: 0.75rem; }
+
+        /* ── VISTA TOGGLE ── */
+        .vista-btns { display: flex; gap: 4px; margin-left: auto; flex-shrink: 0; }
+        .vista-btn {
+            width: 32px; height: 32px; border-radius: 3px;
+            background: var(--color-surface2); border: 1px solid rgba(200,168,75,0.15);
+            color: var(--color-muted); cursor: pointer; font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .vista-btn.active { background: rgba(200,168,75,0.12); border-color: var(--color-primary); color: var(--color-primary); }
+
+        /* ── LISTA COMPACTA ── */
+        .lista-compacta { display: flex; flex-direction: column; padding-bottom: 80px; }
+        .lista-row {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 16px;
+            border-bottom: 1px solid rgba(200,168,75,0.06);
+            background: var(--color-surface);
+            transition: background 0.15s;
+        }
+        .lista-row:hover { background: var(--color-surface2); }
+        .lista-row.estado-pendiente  { border-left: 3px solid var(--color-pending); }
+        .lista-row.estado-confirmada { border-left: 3px solid var(--color-confirm); }
+        .lista-row.estado-cancelada  { border-left: 3px solid rgba(229,62,62,0.3); opacity: 0.55; }
+        .lista-row__hora { font-family: var(--font-display); font-size: 1rem; color: var(--color-primary); width: 52px; flex-shrink: 0; }
+        .lista-row__nombre { flex: 1; font-size: 0.88rem; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lista-row__pers { width: 38px; flex-shrink: 0; font-size: 0.78rem; color: var(--color-muted); text-align: center; }
+        .lista-row__zona { width: 20px; flex-shrink: 0; text-align: center; color: var(--color-muted); font-size: 0.78rem; }
+        .lista-row__actions { display: flex; gap: 4px; flex-shrink: 0; }
+        .row-btn {
+            width: 32px; height: 32px; border-radius: 3px; border: none;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 0.82rem; transition: background 0.2s;
+        }
+        .row-btn--confirm { background: rgba(37,211,102,0.1); color: var(--color-confirm); }
+        .row-btn--confirm:hover { background: rgba(37,211,102,0.22); }
+        .row-btn--cancel  { background: rgba(229,62,62,0.08); color: var(--color-cancel); }
+        .row-btn--cancel:hover  { background: rgba(229,62,62,0.18); }
+        .row-btn:disabled { opacity: 0.3; cursor: default; }
+
+        /* ── LISTA ESPERA ── */
+        .espera-card {
+            background: var(--color-surface);
+            border: 1px solid rgba(91,155,213,0.2);
+            border-left: 3px solid #5B9BD5;
+            border-radius: 6px; overflow: hidden;
+        }
+        .btn-stats { background: none; border: 1px solid rgba(200,168,75,0.25); color: var(--color-muted); font-family: var(--font-body); font-size: 0.78rem; padding: 8px 12px; border-radius: 3px; cursor: pointer; transition: all 0.2s; }
+        .btn-stats:hover, .btn-stats.active { border-color: var(--color-primary); color: var(--color-primary); }
+
+        /* ── REFRESH ── */
+        .fab-refresh {
+            position: fixed; bottom: 24px; right: 20px;
+            width: 50px; height: 50px; border-radius: 50%;
+            background: var(--color-primary); color: #000;
+            border: none; font-size: 1.1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 20px rgba(200,168,75,0.3);
+            transition: background 0.2s, transform 0.3s;
+        }
+        .fab-refresh:hover { background: var(--color-accent); }
+        .fab-refresh.spinning i { animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── MOBILE ONLY ── */
+        @media (max-width: 599px) {
+            /* Header compacto */
+            .header { padding: 10px 14px; gap: 6px; }
+            .header__logout .logout-text { display: none; }
+            .header__logout { padding: 8px 10px; }
+            .btn-nueva { padding: 8px 10px; font-size: 0.78rem; }
+            .btn-stats, .btn-config { padding: 8px 10px; }
+
+            /* Stats 3 col más compacto */
+            .stat { padding: 14px 10px; }
+            .stat__num { font-size: 1.6rem; }
+            .stat__lbl { font-size: 0.6rem; }
+
+            /* Pendientes banner más compacto */
+            .pendiente-item { flex-wrap: wrap; }
+            .pendiente-item__actions { width: 100%; justify-content: flex-end; margin-top: 4px; }
+
+            /* Config inputs full width en mobile */
+            .config-input { width: 100px; }
+        }
+
+        @media (min-width: 600px) {
+            .lista { display: grid; grid-template-columns: 1fr 1fr; }
+        }
+        @media (min-width: 1024px) {
+            .lista { grid-template-columns: repeat(3, 1fr); padding: 16px 24px 80px; }
+            .stats { grid-template-columns: repeat(3, 200px); justify-content: start; gap: 12px; background: none; padding: 16px 24px 0; border-bottom: none; }
+            .stat { border: 1px solid rgba(200,168,75,0.12); border-radius: 6px; }
+            .filters { padding: 12px 24px 0; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div class="login" id="login-screen">
+    <div class="login__box">
+        <img src="logo-ankaraburger.png" alt="Ankara Burger" class="login__logo">
+        <div class="login__title">PANEL DE RESERVAS</div>
+        <div class="login__sub">Ankara Burger · Castelldefels</div>
+        <input type="password" class="login__input" id="pwd-input" placeholder="Contraseña" autocomplete="current-password">
+        <button class="login__btn" id="pwd-btn">
+            <i class="fa-solid fa-unlock-keyhole"></i> ACCEDER
+        </button>
+        <div class="login__error" id="pwd-error">Contraseña incorrecta</div>
+    </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app" style="display:none">
+
+    <header class="header">
+        <div class="header__brand">
+            <img src="logo-ankaraburger.png" alt="Ankara Burger" class="header__logo">
+            <div>
+                <div class="header__title">RESERVAS</div>
+                <div class="header__sub">Ankara Burger · Panel de gestión</div>
+            </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn-nueva" id="btn-nueva">
+                <i class="fa-solid fa-plus"></i> RESERVA
+            </button>
+            <button class="btn-stats" id="btn-stats" title="Estadísticas">
+                <i class="fa-solid fa-chart-simple"></i>
+            </button>
+            <button class="btn-config" id="btn-config">
+                <i class="fa-solid fa-sliders"></i>
+            </button>
+            <button class="header__logout" id="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i> <span class="logout-text">Salir</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Banner pendientes -->
+    <div class="pendientes-banner" id="pendientes-banner">
+        <div class="pendientes-banner__title">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span id="pendientes-banner-title">Reservas pendientes de confirmar</span>
+        </div>
+        <div id="pendientes-banner-list"></div>
+    </div>
+
+    <!-- Filtro fecha -->
+    <div class="fecha-nav">
+        <button class="btn-dia" id="btn-prev-dia" title="Día anterior"><i class="fa-solid fa-chevron-left"></i></button>
+        <input type="date" id="filtro-fecha">
+        <button class="btn-dia" id="btn-next-dia" title="Día siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+        <button class="btn-hoy" id="btn-hoy">HOY</button>
+        <button class="btn-bloquear" id="btn-bloquear">Bloquear</button>
+    </div>
+
+    <!-- Capacidad -->
+    <div class="capacidad" id="capacidad-hoy"></div>
+
+    <div class="stats" id="stats">
+        <div class="stat stat--pending">
+            <div class="stat__num" id="stat-pending">—</div>
+            <div class="stat__lbl">Pendientes</div>
+        </div>
+        <div class="stat stat--confirm">
+            <div class="stat__num" id="stat-today">—</div>
+            <div class="stat__lbl">Confirmadas hoy</div>
+        </div>
+        <div class="stat stat--total">
+            <div class="stat__num" id="stat-total">—</div>
+            <div class="stat__lbl">Total reservas</div>
+        </div>
+    </div>
+
+    <div class="filters">
+        <button class="filter-btn active" data-filter="todas">Todas</button>
+        <button class="filter-btn" data-filter="pendiente">Pendientes</button>
+        <button class="filter-btn" data-filter="confirmada">Confirmadas</button>
+        <button class="filter-btn" data-filter="cancelada">Canceladas</button>
+        <button class="filter-btn" data-filter="espera" id="filter-espera">Lista de espera</button>
+        <div class="vista-btns">
+            <button class="vista-btn" id="btn-vista-lista" title="Vista lista"><i class="fa-solid fa-list"></i></button>
+            <button class="vista-btn active" id="btn-vista-tarjeta" title="Vista tarjetas"><i class="fa-solid fa-table-cells-large"></i></button>
+        </div>
+    </div>
+
+    <div class="lista" id="lista"></div>
+
+    <!-- STATS PANEL -->
+    <div class="stats-panel" id="stats-panel">
+        <!-- Periodo selector -->
+        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+            <button class="filter-btn active" data-period="todo" id="period-todo">Todo</button>
+            <button class="filter-btn" data-period="mes" id="period-mes">Este mes</button>
+            <button class="filter-btn" data-period="semana" id="period-semana">Esta semana</button>
+            <button class="filter-btn" data-period="rango" id="period-rango">Rango personalizado</button>
+        </div>
+        <div id="rango-fechas-wrap" style="display:none;gap:8px;margin-bottom:20px;align-items:center;flex-wrap:wrap">
+            <input type="date" id="rango-desde" class="filter-btn" style="cursor:pointer">
+            <span style="color:var(--color-muted);font-size:0.8rem">hasta</span>
+            <input type="date" id="rango-hasta" class="filter-btn" style="cursor:pointer">
+        </div>
+        <div class="config-section__title" style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-primary);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid rgba(200,168,75,0.12)">Estadísticas generales</div>
+        <div class="stats-grid" id="stats-grid"></div>
+        <div class="config-section__title" style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-primary);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(200,168,75,0.12)">Origen de reservas</div>
+        <div class="origen-bar" id="origen-bar"></div>
+    </div>
+
+    <!-- CONFIG PANEL -->
+    <div class="config-panel" id="config-panel">
+        <div class="config-section">
+            <div class="config-section__title">Reservas online</div>
+            <div class="config-row">
+                <div>
+                    <div class="config-row__label">Reservas activas</div>
+                    <div class="config-row__sub">Activa o desactiva el formulario de reserva en la web</div>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" id="cfg-reservas-activas" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <div class="config-section__title">Capacidad</div>
+            <div class="config-row">
+                <div>
+                    <div class="config-row__label">Aforo salón</div>
+                    <div class="config-row__sub">Plazas máximas en el interior</div>
+                </div>
+                <input type="number" class="config-input" id="cfg-aforo-salon" min="1" max="200" value="24">
+            </div>
+            <div class="config-row">
+                <div>
+                    <div class="config-row__label">Aforo terraza</div>
+                    <div class="config-row__sub">Plazas máximas en exterior</div>
+                </div>
+                <input type="number" class="config-input" id="cfg-aforo-terraza" min="0" max="200" value="16">
+            </div>
+            <div class="config-row">
+                <div>
+                    <div class="config-row__label">Buffer walk-ins</div>
+                    <div class="config-row__sub">% del aforo reservado para clientes sin reserva</div>
+                </div>
+                <select class="config-select" id="cfg-buffer">
+                    <option value="0">0%</option>
+                    <option value="10">10%</option>
+                    <option value="20">20%</option>
+                    <option value="30" selected>30%</option>
+                    <option value="40">40%</option>
+                    <option value="50">50%</option>
+                </select>
+            </div>
+            <div class="config-info" id="cfg-capacidad-info"></div>
+        </div>
+
+        <div class="config-section">
+            <div class="config-section__title">Turnos activos</div>
+            <div class="config-row">
+                <div>
+                    <div class="config-row__label">Mediodía activo</div>
+                    <div class="config-row__sub">Acepta reservas online para el turno de mediodía (Vie/Sáb/Dom)</div>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" id="cfg-mediodia" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="config-row">
+                <div>
+                    <div class="config-row__label">Noche activo</div>
+                    <div class="config-row__sub">Acepta reservas online para el turno de noche</div>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" id="cfg-noche" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <div class="config-section__title">Pop-up de promoción</div>
+            <div class="config-row">
+                <div>
+                    <div class="config-row__label">Pop-up activo</div>
+                    <div class="config-row__sub">Muestra un pop-up al entrar en la web (una vez por sesión)</div>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" id="cfg-popup-activo">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px">
+                <!-- IMAGEN -->
+                <div>
+                    <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-primary);margin-bottom:5px">Imagen</div>
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <div id="popup-img-preview" style="width:72px;height:72px;border-radius:6px;border:1px solid rgba(200,168,75,0.2);background:var(--color-surface2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--color-muted);font-size:1.4rem">
+                            <i class="fa-regular fa-image"></i>
+                        </div>
+                        <div style="flex:1">
+                            <label style="display:inline-flex;align-items:center;gap:7px;background:var(--color-surface2);border:1px solid rgba(200,168,75,0.2);border-radius:3px;padding:8px 14px;cursor:pointer;font-size:0.8rem;color:var(--color-muted);transition:all 0.2s" id="popup-img-label">
+                                <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                                <span id="popup-img-label-text">Subir imagen</span>
+                                <input type="file" id="popup-img-input" accept="image/jpeg,image/png,image/webp" style="display:none">
+                            </label>
+                            <div style="font-size:0.68rem;color:var(--color-muted);margin-top:5px">JPG, PNG o WEBP · Máx. 5MB</div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-primary);margin-bottom:5px">Título</div>
+                    <input type="text" id="cfg-popup-titulo" placeholder="Ej: NUEVA HAMBURGUESA" style="background:var(--color-surface2);border:1px solid rgba(200,168,75,0.2);border-radius:3px;color:var(--color-text);font-family:var(--font-body);font-size:0.88rem;padding:9px 12px;width:100%;outline:none">
+                </div>
+                <div>
+                    <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-primary);margin-bottom:5px">Descripción</div>
+                    <textarea id="cfg-popup-texto" rows="2" style="background:var(--color-surface2);border:1px solid rgba(200,168,75,0.2);border-radius:3px;color:var(--color-text);font-family:var(--font-body);font-size:0.88rem;padding:9px 12px;width:100%;outline:none;resize:none" placeholder="Ej: Ya está disponible La Scaloneta. Unidades limitadas cada noche."></textarea>
+                </div>
+                <div>
+                    <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-primary);margin-bottom:5px">Botón de acción</div>
+                    <select id="cfg-popup-cta-select" style="background:var(--color-surface2);border:1px solid rgba(200,168,75,0.2);border-radius:3px;color:var(--color-text);font-family:var(--font-body);font-size:0.88rem;padding:9px 12px;width:100%;outline:none;appearance:none">
+                        <option value="sin_boton">Sin botón</option>
+                        <option value="ver_carta">Ver carta completa</option>
+                        <option value="reservar">Reservar mesa</option>
+                        <option value="pedir_online">Pedir online</option>
+                    </select>
+                    <!-- campos ocultos para compatibilidad -->
+                    <input type="hidden" id="cfg-popup-cta-texto">
+                    <input type="hidden" id="cfg-popup-cta-url">
+                </div>
+            </div>
+        </div>
+
+        <div class="config-section">
+            <div class="config-section__title">Pop-up de promoción · Carta</div>
+            <div class="config-row">
+                <div>
+                    <div class="config-row__label">Pop-up activo en la carta</div>
+                    <div class="config-row__sub">Muestra un pop-up al entrar en carta.html (independiente de la web)</div>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" id="cfg-popup-carta-activo">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px">
+                <div>
+                    <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-primary);margin-bottom:5px">Imagen</div>
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <div id="popup-carta-img-preview" style="width:72px;height:72px;border-radius:6px;border:1px solid rgba(200,168,75,0.2);background:var(--color-surface2);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--color-muted);font-size:1.4rem">
+                            <i class="fa-regular fa-image"></i>
+                        </div>
+                        <div style="flex:1">
+                            <label style="display:inline-flex;align-items:center;gap:7px;background:var(--color-surface2);border:1px solid rgba(200,168,75,0.2);border-radius:3px;padding:8px 14px;cursor:pointer;font-size:0.8rem;color:var(--color-muted);transition:all 0.2s" id="popup-carta-img-label">
+                                <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                                <span id="popup-carta-img-label-text">Subir imagen</span>
+                                <input type="file" id="popup-carta-img-input" accept="image/jpeg,image/png,image/webp" style="display:none">
+                            </label>
+                            <div style="font-size:0.68rem;color:var(--color-muted);margin-top:5px">JPG, PNG o WEBP · Máx. 5MB</div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-primary);margin-bottom:5px">Título</div>
+                    <input type="text" id="cfg-popup-carta-titulo" placeholder="Ej: NUEVA HAMBURGUESA" style="background:var(--color-surface2);border:1px solid rgba(200,168,75,0.2);border-radius:3px;color:var(--color-text);font-family:var(--font-body);font-size:0.88rem;padding:9px 12px;width:100%;outline:none">
+                </div>
+                <div>
+                    <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-primary);margin-bottom:5px">Descripción</div>
+                    <textarea id="cfg-popup-carta-texto" rows="2" style="background:var(--color-surface2);border:1px solid rgba(200,168,75,0.2);border-radius:3px;color:var(--color-text);font-family:var(--font-body);font-size:0.88rem;padding:9px 12px;width:100%;outline:none;resize:none" placeholder="Ej: Ya está disponible La Scaloneta. Unidades limitadas cada noche."></textarea>
+                </div>
+                <div>
+                    <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-primary);margin-bottom:5px">Botón de acción</div>
+                    <select id="cfg-popup-carta-cta-select" style="background:var(--color-surface2);border:1px solid rgba(200,168,75,0.2);border-radius:3px;color:var(--color-text);font-family:var(--font-body);font-size:0.88rem;padding:9px 12px;width:100%;outline:none;appearance:none">
+                        <option value="sin_boton">Sin botón</option>
+                        <option value="ver_carta">Ver carta completa</option>
+                        <option value="reservar">Reservar mesa</option>
+                        <option value="pedir_online">Pedir online</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="config-section" style="display:none">
+            <div class="config-section__title">Rotación de mesas</div>
+            <div class="config-row">
+                <select class="config-select" id="cfg-turno">
+                    <option value="60" selected>60 min</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- AGOTADOS -->
+        <div class="config-section">
+            <div class="config-section__title">Hamburguesas agotadas</div>
+            <div class="config-row__sub" style="padding:0 0 12px">Marca las que están agotadas — aparecerán como no disponibles en la carta.</div>
+            <div id="agotados-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;"></div>
+        </div>
+
+        <!-- FRANJAS BLOQUEADAS -->
+        <div class="config-section">
+            <div class="config-section__title">Franjas horarias bloqueadas</div>
+            <div class="config-row__sub" style="padding:0 0 12px">Bloquea horas concretas para que no aparezcan en el formulario de reservas.</div>
+            <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;color:var(--color-muted);margin-bottom:8px;">MEDIODÍA</div>
+            <div id="franjas-mediodia" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;"></div>
+            <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;color:var(--color-muted);margin-bottom:8px;">NOCHE</div>
+            <div id="franjas-noche" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+        </div>
+
+        <div class="config-save">
+            <button class="btn-save" id="btn-save-config">
+                <i class="fa-solid fa-floppy-disk"></i> GUARDAR
+            </button>
+            <span class="save-msg" id="save-msg">✓ Guardado correctamente</span>
+        </div>
+    </div>
+
+    <button class="fab-refresh" id="fab-refresh" title="Actualizar">
+        <i class="fa-solid fa-rotate-right"></i>
+    </button>
+
+</div>
+
+<!-- ── MODAL NUEVA RESERVA ── -->
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+        <div class="modal__title">
+            NUEVA RESERVA
+            <button class="modal__close" id="modal-close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal__field">
+            <label>Origen</label>
+            <div class="modal__origen">
+                <button type="button" class="modal__origen-btn sel-web" data-origen="web"><i class="fa-solid fa-globe"></i> Web</button>
+                <button type="button" class="modal__origen-btn" data-origen="telefono"><i class="fa-solid fa-phone"></i> Teléfono</button>
+                <button type="button" class="modal__origen-btn" data-origen="whatsapp"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+                <button type="button" class="modal__origen-btn" data-origen="instagram"><i class="fa-brands fa-instagram"></i> Instagram</button>
+            </div>
+        </div>
+        <div class="modal__field">
+            <label>Nombre</label>
+            <input type="text" id="m-nombre" placeholder="Nombre del cliente">
+        </div>
+        <div class="modal__row">
+            <div class="modal__field">
+                <label>Fecha</label>
+                <input type="date" id="m-fecha">
+            </div>
+            <div class="modal__field">
+                <label>Hora</label>
+                <select id="m-hora">
+                    <option value="" disabled selected>Hora</option>
+                    <optgroup label="Mediodía">
+                        <option>12:00</option><option>12:30</option><option>13:00</option>
+                        <option>13:30</option><option>14:00</option><option>14:30</option><option>15:00</option>
+                    </optgroup>
+                    <optgroup label="Noche">
+                        <option>18:00</option><option>18:30</option><option>19:00</option>
+                        <option>19:30</option><option>20:00</option><option>20:30</option>
+                        <option>21:00</option><option>21:30</option><option>22:00</option><option>22:30</option>
+                    </optgroup>
+                </select>
+            </div>
+        </div>
+        <div class="modal__row">
+            <div class="modal__field">
+                <label>Personas</label>
+                <select id="m-personas">
+                    <option value="" disabled selected>Nº</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option>
+                </select>
+            </div>
+            <div class="modal__field">
+                <label>Teléfono</label>
+                <input type="tel" id="m-telefono" placeholder="6XX XXX XXX">
+            </div>
+        </div>
+        <div class="modal__field">
+            <label>Zona</label>
+            <select id="m-zona">
+                <option value="sin_preferencia">Sin preferencia</option>
+                <option value="salon">Salón</option>
+                <option value="terraza">Terraza</option>
+            </select>
+        </div>
+        <div class="modal__field">
+            <label>Email <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--color-muted)">(opcional)</span></label>
+            <input type="email" id="m-email" placeholder="cliente@email.com">
+        </div>
+        <div class="modal__field">
+            <label>Nota <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--color-muted)">(opcional)</span></label>
+            <textarea id="m-nota" rows="2" placeholder="Alergias, celebración, preferencias..." style="background:var(--color-surface2);border:1px solid rgba(200,168,75,0.2);border-radius:3px;color:var(--color-text);font-family:var(--font-body);font-size:0.88rem;padding:10px 12px;width:100%;outline:none;resize:none"></textarea>
+        </div>
+        <button class="modal__submit" id="modal-submit">
+            <i class="fa-solid fa-calendar-plus"></i> GUARDAR RESERVA
+        </button>
+    </div>
+</div>
+
+<script>
+    const SUPA_URL = 'https://evhxekevbgfeticrfcfh.supabase.co';
+    const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2aHhla2V2YmdmZXRpY3JmY2ZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MjUwODMsImV4cCI6MjA5NjAwMTA4M30.ymbkuLe57GAv9vC8omi70erUTj7wMBo4TmlSuKBnqyU';
+    const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+    // Login real contra Supabase Auth — el panel solo pide la contraseña,
+    // el email de la cuenta de staff queda fijo internamente.
+    const ADMIN_EMAIL = 'panel@ankaraburger.com';
+
+    let filtroActivo = 'todas';
+    let filtroFecha  = new Date().toISOString().split('T')[0];
+    let reservas = [];
+    let diasBloqueados = new Set();
+
+    // ── LOGIN ──
+    async function entrarAlPanel() {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        await cargarConfig();
+        cargarReservas();
+    }
+    async function tryLogin() {
+        const val = document.getElementById('pwd-input').value;
+        const { error } = await supa.auth.signInWithPassword({ email: ADMIN_EMAIL, password: val });
+        if (!error) {
+            await entrarAlPanel();
+        } else {
+            document.getElementById('pwd-error').style.display = 'block';
+            document.getElementById('pwd-input').focus();
+        }
+    }
+    document.getElementById('pwd-btn').addEventListener('click', tryLogin);
+    document.getElementById('pwd-input').addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+        await supa.auth.signOut();
+        document.getElementById('login-screen').style.display = 'flex';
+        document.getElementById('app').style.display = 'none';
+        document.getElementById('pwd-input').value = '';
+    });
+    // Sesión recordada en este dispositivo (gestionada por Supabase Auth)
+    (async () => {
+        const { data } = await supa.auth.getSession();
+        if (data.session) entrarAlPanel();
+    })();
+
+    let listaEspera = [];
+
+    // ── CARGAR RESERVAS ──
+    async function cargarReservas() {
+        const fab = document.getElementById('fab-refresh');
+        fab.classList.add('spinning');
+        const [{ data }, { data: bloq }, { data: espera }] = await Promise.all([
+            supa.from('reservas').select('*').order('fecha', { ascending: true }).order('hora', { ascending: true }),
+            supa.from('dias_bloqueados').select('fecha'),
+            supa.from('lista_espera').select('*').order('created_at', { ascending: true })
+        ]);
+        fab.classList.remove('spinning');
+        reservas = data || [];
+        reservasMap = Object.fromEntries(reservas.map(r => [r.id, r]));
+        diasBloqueados = new Set((bloq || []).map(b => b.fecha));
+        listaEspera = espera || [];
+        actualizarStats();
+        actualizarCapacidad();
+        actualizarBloquearBtn();
+        renderBannerPendientes();
+        renderLista();
+        // actualizar badge espera
+        const hoyEspera = listaEspera.filter(e => e.fecha >= new Date().toISOString().split('T')[0]).length;
+        document.getElementById('filter-espera').textContent = `Lista de espera${hoyEspera > 0 ? ` (${hoyEspera})` : ''}`;
+    }
+
+    // ── BANNER PENDIENTES ──
+    function renderBannerPendientes() {
+        const hoy = new Date().toISOString().split('T')[0];
+        const pendientes = reservas.filter(r => r.estado === 'pendiente' && r.fecha >= hoy);
+        const banner = document.getElementById('pendientes-banner');
+        if (!pendientes.length) { banner.classList.remove('visible'); return; }
+        banner.classList.add('visible');
+        document.getElementById('pendientes-banner-title').textContent =
+            `${pendientes.length} reserva${pendientes.length > 1 ? 's' : ''} pendiente${pendientes.length > 1 ? 's' : ''} de confirmar`;
+        document.getElementById('pendientes-banner-list').innerHTML = pendientes.map(r => {
+            const fechaFmt = new Date(r.fecha + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+            return `<div class="pendiente-item">
+                <div class="pendiente-item__info">
+                    <div class="pendiente-item__nombre">${r.nombre}</div>
+                    <div class="pendiente-item__meta">${r.personas} pers · ${fechaFmt} · ${r.hora}</div>
+                </div>
+                <div class="pendiente-item__actions">
+                    <button class="btn-confirm-small" onclick="confirmar('${r.id}');renderBannerPendientes()">
+                        <i class="fa-solid fa-check"></i> CONFIRMAR
+                    </button>
+                    <button class="btn-cancel-small" onclick="cancelar('${r.id}')">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    // ── ESTADÍSTICAS ──
+    let statsPeriodo = 'todo';
+    function renderStats() {
+        const hoy = new Date();
+        let filtradas = reservas.filter(r => r.estado === 'confirmada');
+        if (statsPeriodo === 'mes') {
+            const mes = hoy.toISOString().slice(0,7);
+            filtradas = filtradas.filter(r => r.fecha && r.fecha.startsWith(mes));
+        } else if (statsPeriodo === 'semana') {
+            const lunes = new Date(hoy); lunes.setDate(hoy.getDate() - hoy.getDay() + 1);
+            const domingo = new Date(lunes); domingo.setDate(lunes.getDate() + 6);
+            filtradas = filtradas.filter(r => r.fecha >= lunes.toISOString().split('T')[0] && r.fecha <= domingo.toISOString().split('T')[0]);
+        } else if (statsPeriodo === 'rango') {
+            const desde = document.getElementById('rango-desde').value;
+            const hasta = document.getElementById('rango-hasta').value;
+            if (desde) filtradas = filtradas.filter(r => r.fecha >= desde);
+            if (hasta) filtradas = filtradas.filter(r => r.fecha <= hasta);
+        }
+        const confirmadas = filtradas;
+        const canceladas  = reservas.filter(r => r.estado === 'cancelada');
+        const todas       = reservas.filter(r => r.estado !== 'pendiente');
+        const totalPersonas = confirmadas.reduce((s, r) => s + (parseInt(r.personas) || 0), 0);
+        const mediaPers = confirmadas.length ? (totalPersonas / confirmadas.length).toFixed(1) : '—';
+        const pctCancel = todas.length ? Math.round(canceladas.length / todas.length * 100) : 0;
+
+        // Día más popular
+        const diasCount = [0,0,0,0,0,0,0];
+        const diasNombre = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+        confirmadas.forEach(r => { if (r.fecha) diasCount[new Date(r.fecha+'T12:00:00').getDay()]++; });
+        const diaPicoIdx = diasCount.indexOf(Math.max(...diasCount));
+        const diaPico = Math.max(...diasCount) > 0 ? diasNombre[diaPicoIdx] : '—';
+
+        // Hora más popular
+        const horasCount = {};
+        confirmadas.forEach(r => { if (r.hora) horasCount[r.hora] = (horasCount[r.hora]||0)+1; });
+        const horaPico = Object.keys(horasCount).length
+            ? Object.entries(horasCount).sort((a,b)=>b[1]-a[1])[0][0]
+            : '—';
+
+        // Este mes
+        const mesActual = new Date().toISOString().slice(0,7);
+        const esteMes = confirmadas.filter(r => r.fecha && r.fecha.startsWith(mesActual)).length;
+
+        document.getElementById('stats-grid').innerHTML = `
+            <div class="stat-card">
+                <div class="stat-card__num">${confirmadas.length}</div>
+                <div class="stat-card__lbl">Reservas totales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__num">${esteMes}</div>
+                <div class="stat-card__lbl">Este mes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__num">${totalPersonas}</div>
+                <div class="stat-card__lbl">Personas totales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__num">${mediaPers}</div>
+                <div class="stat-card__lbl">Media personas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__num">${diaPico}</div>
+                <div class="stat-card__lbl">Día más reservado</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__num">${horaPico}</div>
+                <div class="stat-card__lbl">Hora pico</div>
+            </div>
+            <div class="stat-card stat-card--wide">
+                <div class="stat-card__num">${pctCancel}%</div>
+                <div class="stat-card__lbl">Cancelaciones</div>
+            </div>
+        `;
+
+        // Origen breakdown
+        const origenes = { web: 0, instagram: 0, telefono: 0, whatsapp: 0 };
+        const origenColors = { web: '#5B9BD5', instagram: '#C13584', telefono: 'var(--color-primary)', whatsapp: '#25D366' };
+        confirmadas.forEach(r => { if (origenes[r.origen] !== undefined) origenes[r.origen]++; });
+        const total = Object.values(origenes).reduce((a,b)=>a+b,0) || 1;
+        document.getElementById('origen-bar').innerHTML = Object.entries(origenes).map(([k, v]) => `
+            <div class="origen-row">
+                <div class="origen-row__label">${k.charAt(0).toUpperCase()+k.slice(1)}</div>
+                <div class="origen-row__bar-wrap">
+                    <div class="origen-row__bar" style="width:${Math.round(v/total*100)}%;background:${origenColors[k]}"></div>
+                </div>
+                <div class="origen-row__pct">${Math.round(v/total*100)}%</div>
+            </div>
+        `).join('');
+    }
+
+    // ── STATS ──
+    function actualizarStats() {
+        document.getElementById('stat-pending').textContent = reservas.filter(r => r.estado === 'pendiente').length;
+        document.getElementById('stat-today').textContent   = reservas.filter(r => r.estado === 'confirmada' && r.fecha === filtroFecha).length;
+        document.getElementById('stat-total').textContent   = reservas.filter(r => r.fecha === filtroFecha && r.estado !== 'cancelada').length;
+    }
+
+    const HORAS_MEDIODIA = ['12:00','12:30','13:00','13:30','14:00','14:30','15:00'];
+    const HORAS_NOCHE    = ['18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00','22:30'];
+    const ORIGEN_ICON  = { web: 'fa-globe', telefono: 'fa-phone', whatsapp: 'fa-brands fa-whatsapp', instagram: 'fa-brands fa-instagram' };
+    const ORIGEN_COLOR = { web: 'origen-web', telefono: 'origen-telefono', whatsapp: 'origen-whatsapp', instagram: 'origen-instagram' };
+    const ZONA_ICON   = { salon: 'fa-house', terraza: 'fa-sun', sin_preferencia: 'fa-shuffle' };
+    const ZONA_LABEL  = { salon: 'Salón', terraza: 'Terraza', sin_preferencia: 'Sin pref.' };
+
+    // ── CAPACIDAD ──
+    function actualizarCapacidad() {
+        const aforo_salon   = cfg.aforo_salon   || 24;
+        const aforo_terraza = cfg.aforo_terraza || 16;
+        const deHoy = reservas.filter(r => r.fecha === filtroFecha && r.estado !== 'cancelada');
+        const capBar = (label, ocupado, aforo) => {
+            const pct = Math.min(100, Math.round(ocupado / aforo * 100));
+            const col = ocupado >= aforo ? '#E53E3E' : ocupado >= aforo * 0.75 ? 'var(--color-accent)' : 'var(--color-confirm)';
+            return `<div class="cap-row">
+                <div class="cap-label">${label} <span>${ocupado}/${aforo} personas</span></div>
+                <div class="cap-bar"><div class="cap-fill" style="width:${pct}%;background:${col}"></div></div>
+            </div>`;
+        };
+        // Pico de ocupación por franja de 90 min (máximo simultáneo)
+        function picoPorFranja(reservas, horas, zona) {
+            return Math.max(0, ...horas.map(h => {
+                const [hh, mm] = h.split(':').map(Number);
+                const selMin = hh * 60 + mm;
+                return reservas
+                    .filter(r => horas.includes(r.hora) && (zona === 'terraza' ? r.zona === 'terraza' : r.zona !== 'terraza'))
+                    .filter(r => { const [rv, rm] = r.hora.split(':').map(Number); return Math.abs((rv*60+rm) - selMin) <= 60; })
+                    .reduce((s, r) => s + (parseInt(r.personas)||0), 0);
+            }));
+        }
+        const mSalon   = picoPorFranja(deHoy.filter(r => HORAS_MEDIODIA.includes(r.hora)), HORAS_MEDIODIA, 'salon');
+        const mTerraza = picoPorFranja(deHoy.filter(r => HORAS_MEDIODIA.includes(r.hora)), HORAS_MEDIODIA, 'terraza');
+        const nSalon   = picoPorFranja(deHoy.filter(r => HORAS_NOCHE.includes(r.hora)),    HORAS_NOCHE,    'salon');
+        const nTerraza = picoPorFranja(deHoy.filter(r => HORAS_NOCHE.includes(r.hora)),    HORAS_NOCHE,    'terraza');
+        document.getElementById('capacidad-hoy').innerHTML =
+            `<div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-muted);margin-bottom:6px">Pico de ocupación simultánea</div>` +
+            capBar('Mediodía · Salón', mSalon, aforo_salon) +
+            capBar('Mediodía · Terraza', mTerraza, aforo_terraza) +
+            capBar('Noche · Salón', nSalon, aforo_salon) +
+            capBar('Noche · Terraza', nTerraza, aforo_terraza);
+    }
+
+    // ── BLOQUEAR DÍA ──
+    function actualizarBloquearBtn() {
+        const btn = document.getElementById('btn-bloquear');
+        if (diasBloqueados.has(filtroFecha)) {
+            btn.textContent = '✓ Desbloquear';
+            btn.classList.add('bloqueado');
+        } else {
+            btn.textContent = 'Bloquear día';
+            btn.classList.remove('bloqueado');
+        }
+    }
+    document.getElementById('btn-bloquear').addEventListener('click', async () => {
+        if (diasBloqueados.has(filtroFecha)) {
+            await supa.from('dias_bloqueados').delete().eq('fecha', filtroFecha);
+        } else {
+            const motivo = prompt('Motivo del cierre (ej: Festivo, Evento privado):', 'Cerrado') || 'Cerrado';
+            await supa.from('dias_bloqueados').insert([{ fecha: filtroFecha, motivo }]);
+        }
+        cargarReservas();
+    });
+
+    // ── FILTRO FECHA ──
+    const filtroFechaEl = document.getElementById('filtro-fecha');
+    filtroFechaEl.value = filtroFecha;
+
+    function cambiarFecha(fecha) {
+        filtroFecha = fecha;
+        filtroFechaEl.value = fecha;
+        actualizarStats();
+        actualizarCapacidad();
+        actualizarBloquearBtn();
+        renderLista();
+    }
+
+    filtroFechaEl.addEventListener('change', () => cambiarFecha(filtroFechaEl.value));
+
+    document.getElementById('btn-hoy').addEventListener('click', () =>
+        cambiarFecha(new Date().toISOString().split('T')[0]));
+
+    document.getElementById('btn-prev-dia').addEventListener('click', () => {
+        const d = new Date(filtroFecha + 'T12:00:00');
+        d.setDate(d.getDate() - 1);
+        cambiarFecha(d.toISOString().split('T')[0]);
+    });
+
+    document.getElementById('btn-next-dia').addEventListener('click', () => {
+        const d = new Date(filtroFecha + 'T12:00:00');
+        d.setDate(d.getDate() + 1);
+        cambiarFecha(d.toISOString().split('T')[0]);
+    });
+
+    let vistaActiva = 'tarjeta';
+
+    // ── RENDER ──
+    function renderLista() {
+        const lista = document.getElementById('lista');
+
+        // Lista de espera
+        if (filtroActivo === 'espera') {
+            lista.className = 'lista';
+            const hoy = new Date().toISOString().split('T')[0];
+            const futuros = listaEspera.filter(e => e.fecha >= hoy).sort((a,b) => a.fecha.localeCompare(b.fecha));
+            if (!futuros.length) {
+                lista.innerHTML = `<div class="empty"><i class="fa-solid fa-hourglass-empty"></i>Sin personas en lista de espera</div>`;
+                return;
+            }
+            lista.innerHTML = futuros.map(e => {
+                const fechaFmt = new Date(e.fecha+'T12:00:00').toLocaleDateString('es-ES', { weekday: 'short', day:'numeric', month:'short' });
+                const waMsg = `Hola ${e.nombre}, se ha liberado una plaza en Ankara Burger para el ${fechaFmt} a las ${e.hora}. ¿Te apuntas? Reserva en ankaraburger.com 🍔`;
+                const waUrl = e.telefono ? `https://wa.me/34${e.telefono.replace(/\s/g,'')}?text=${encodeURIComponent(waMsg)}` : '';
+                return `<div class="espera-card">
+                    <div class="card__head">
+                        <div class="card__nombre">${e.nombre}</div>
+                        <span class="card__badge" style="background:rgba(91,155,213,0.15);color:#5B9BD5">En espera</span>
+                    </div>
+                    <div class="card__info">
+                        <div class="card__info-item"><i class="fa-solid fa-calendar"></i><strong>${fechaFmt}</strong></div>
+                        <div class="card__info-item"><i class="fa-solid fa-clock"></i><strong>${e.hora}</strong></div>
+                        <div class="card__info-item"><i class="fa-solid fa-users"></i><strong>${e.personas} pers.</strong></div>
+                        ${e.telefono ? `<div class="card__info-item"><i class="fa-solid fa-phone"></i><strong>${e.telefono}</strong></div>` : ''}
+                    </div>
+                    <div class="card__actions">
+                        ${waUrl ? `<a href="${waUrl}" target="_blank" class="card__btn card__btn--confirm"><i class="fa-brands fa-whatsapp"></i> AVISAR</a>` : '<span class="card__btn" style="opacity:0.3">Sin teléfono</span>'}
+                        <button class="card__btn card__btn--cancel" onclick="eliminarEspera('${e.id}')"><i class="fa-solid fa-trash"></i> QUITAR</button>
+                    </div>
+                </div>`;
+            }).join('');
+            return;
+        }
+
+        const porFecha = reservas.filter(r => r.fecha === filtroFecha);
+        const datos = filtroActivo === 'todas'
+            ? porFecha.filter(r => r.estado !== 'cancelada')
+            : porFecha.filter(r => r.estado === filtroActivo);
+        if (!datos.length) {
+            const fechaFmt = new Date(filtroFecha + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+            lista.innerHTML = `<div class="empty"><i class="fa-regular fa-calendar-xmark"></i>Sin reservas el ${fechaFmt}${filtroActivo !== 'todas' ? ' (' + filtroActivo + 's)' : ''}</div>`;
+            return;
+        }
+        // Vista lista compacta
+        if (vistaActiva === 'lista') {
+            lista.className = 'lista-compacta';
+            lista.innerHTML = datos.map(r => {
+                const esConf = r.estado === 'confirmada';
+                const esCan  = r.estado === 'cancelada';
+                return `<div class="lista-row estado-${r.estado}">
+                    <div class="lista-row__hora">${r.hora}</div>
+                    <div class="lista-row__nombre">${r.nombre}</div>
+                    <div class="lista-row__pers"><i class="fa-solid fa-users" style="font-size:0.65rem;margin-right:2px"></i>${r.personas}</div>
+                    <div class="lista-row__zona"><i class="fa-solid ${ZONA_ICON[r.zona||'sin_preferencia']}"></i></div>
+                    <div class="lista-row__actions">
+                        <button class="row-btn row-btn--confirm" onclick="confirmar('${r.id}')" ${esConf||esCan?'disabled':''} title="Confirmar">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                        <button class="row-btn row-btn--cancel" onclick="cancelar('${r.id}')" ${esCan?'disabled':''} title="Cancelar">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+            return;
+        }
+
+        lista.className = 'lista';
+        lista.innerHTML = datos.map(r => {
+            const fecha = new Date(r.fecha + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+            const esConfirmada = r.estado === 'confirmada';
+            const origenIcon  = ORIGEN_ICON[r.origen]  || 'fa-globe';
+            const origenClass = ORIGEN_COLOR[r.origen] || 'origen-web';
+            return `
+            <div class="card estado-${r.estado}" data-id="${r.id}">
+                <div class="card__head">
+                    <div class="card__nombre">${r.nombre}<span class="badge-origen ${origenClass}"><i class="fa-solid ${origenIcon}"></i> ${r.origen||'web'}</span></div>
+                    <span class="card__badge badge-${r.estado}">${r.estado}</span>
+                </div>
+                <div class="card__info">
+                    <div class="card__info-item"><i class="fa-solid fa-calendar"></i><strong>${fecha}</strong></div>
+                    <div class="card__info-item"><i class="fa-solid fa-clock"></i><strong>${r.hora}</strong></div>
+                    <div class="card__info-item"><i class="fa-solid fa-users"></i><strong>${r.personas} pers.</strong></div>
+                    ${r.telefono ? `<div class="card__info-item"><i class="fa-solid fa-phone"></i><strong>${r.telefono}</strong></div>` : ''}
+                    <div class="card__info-item"><i class="fa-solid ${ZONA_ICON[r.zona||'sin_preferencia']}"></i><strong>${ZONA_LABEL[r.zona||'sin_preferencia']}</strong></div>
+                    ${r.nota ? `<div class="card__info-item" style="width:100%;grid-column:1/-1"><i class="fa-solid fa-note-sticky"></i><span style="color:var(--color-muted);font-style:italic">${r.nota}</span></div>` : ''}
+                </div>
+                <div class="card__actions">
+                    <button class="card__btn card__btn--confirm" onclick="confirmar('${r.id}')" ${esConfirmada ? 'disabled' : ''}>
+                        <i class="fa-solid fa-circle-check"></i> CONFIRMAR
+                    </button>
+                    <button class="card__btn card__btn--cancel" onclick="cancelar('${r.id}')" ${r.estado === 'cancelada' ? 'disabled' : ''}>
+                        <i class="fa-solid fa-circle-xmark"></i> CANCELAR
+                    </button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    // ── CONFIRMAR ──
+    async function confirmar(id) {
+        const r = reservasMap[id];
+        if (!r) return;
+        await supa.from('reservas').update({ estado: 'confirmada' }).eq('id', id);
+        await cargarReservas();
+        // Email
+        if (r.email) {
+            const cancelUrl = `https://ankaraburger.com/cancelar.html?id=${r.id}`;
+            fetch(`${SUPA_URL}/functions/v1/confirmar-reserva`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY },
+                body: JSON.stringify({
+                    nombre: r.nombre, email: r.email, fecha: r.fecha,
+                    hora: r.hora, personas: r.personas, zona: r.zona,
+                    cancelUrl, tipo: 'confirmacion'
+                })
+            }).catch(err => console.error('Email error:', err));
+        }
+    }
+
+    // ── CANCELAR ──
+    async function cancelar(id) {
+        const r = reservasMap[id];
+        if (!r) return;
+        const eraPendiente = r.estado === 'pendiente';
+        if (!confirm(`¿Cancelar la reserva de ${r.nombre}?`)) return;
+        await supa.from('reservas').update({ estado: 'cancelada' }).eq('id', id);
+        cargarReservas();
+        // Email
+        if (r.email) {
+            fetch(`${SUPA_URL}/functions/v1/confirmar-reserva`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'apikey': SUPA_KEY },
+                body: JSON.stringify({ nombre: r.nombre, email: r.email, tipo: eraPendiente ? 'rechazo' : 'cancelacion' })
+            }).catch(err => console.error('Email error:', err));
+        }
+    }
+
+    // ── TOGGLE VISTA ──
+    document.getElementById('btn-vista-lista').addEventListener('click', () => {
+        vistaActiva = 'lista';
+        document.getElementById('btn-vista-lista').classList.add('active');
+        document.getElementById('btn-vista-tarjeta').classList.remove('active');
+        renderLista();
+    });
+    document.getElementById('btn-vista-tarjeta').addEventListener('click', () => {
+        vistaActiva = 'tarjeta';
+        document.getElementById('btn-vista-tarjeta').classList.add('active');
+        document.getElementById('btn-vista-lista').classList.remove('active');
+        renderLista();
+    });
+
+    // ── ELIMINAR ESPERA ──
+    async function eliminarEspera(id) {
+        if (!confirm('¿Quitar de la lista de espera?')) return;
+        await supa.from('lista_espera').delete().eq('id', id);
+        cargarReservas();
+    }
+
+    // ── FILTROS ──
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filtroActivo = btn.dataset.filter;
+            renderLista();
+        });
+    });
+
+    // ── STATS PANEL ──
+    const PANEL_HIDE = ['capacidad-hoy','stats','filters','lista','fecha-nav','pendientes-banner'];
+    document.getElementById('btn-stats').addEventListener('click', () => {
+        const panel = document.getElementById('stats-panel');
+        const config = document.getElementById('config-panel');
+        const isOpen = panel.classList.toggle('open');
+        document.getElementById('btn-stats').classList.toggle('active', isOpen);
+        if (isOpen) {
+            config.classList.remove('open');
+            document.getElementById('btn-config').classList.remove('active');
+            renderStats();
+        }
+        PANEL_HIDE.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = isOpen ? 'none' : '';
+        });
+        // Restaurar banner pendientes si hay
+        if (!isOpen) renderBannerPendientes();
+    });
+
+    // Periodo stats
+    document.querySelectorAll('[data-period]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('[data-period]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            statsPeriodo = btn.dataset.period;
+            document.getElementById('rango-fechas-wrap').style.display = statsPeriodo === 'rango' ? 'flex' : 'none';
+            renderStats();
+        });
+    });
+    document.getElementById('rango-desde').addEventListener('change', renderStats);
+    document.getElementById('rango-hasta').addEventListener('change', renderStats);
+
+    // ── REFRESH ──
+    document.getElementById('fab-refresh').addEventListener('click', cargarReservas);
+
+    // ── MODAL NUEVA RESERVA ──
+    let origenSeleccionado = 'web';
+    document.getElementById('btn-nueva').addEventListener('click', () => {
+        document.getElementById('modal-overlay').classList.add('open');
+        document.getElementById('m-nombre').focus();
+    });
+    document.getElementById('modal-close').addEventListener('click', () => document.getElementById('modal-overlay').classList.remove('open'));
+    document.getElementById('modal-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+
+    document.querySelectorAll('.modal__origen-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.modal__origen-btn').forEach(b => b.className = 'modal__origen-btn');
+            btn.classList.add(`sel-${btn.dataset.origen}`);
+            origenSeleccionado = btn.dataset.origen;
+        });
+    });
+
+    document.getElementById('modal-submit').addEventListener('click', async () => {
+        const nombre   = document.getElementById('m-nombre').value.trim();
+        const fecha    = document.getElementById('m-fecha').value;
+        const hora     = document.getElementById('m-hora').value;
+        const personas = parseInt(document.getElementById('m-personas').value) || 0;
+        const telefono = document.getElementById('m-telefono').value.trim();
+        const email    = document.getElementById('m-email').value.trim();
+        const nota     = document.getElementById('m-nota').value.trim();
+        if (!nombre || !fecha || !hora || !personas) { alert('Completa nombre, fecha, hora y personas.'); return; }
+        const btn = document.getElementById('modal-submit');
+        btn.disabled = true; btn.textContent = 'Guardando...';
+        const zona = document.getElementById('m-zona').value;
+        await supa.from('reservas').insert([{ nombre, fecha, hora, personas, telefono, email: email || null, origen: origenSeleccionado, zona, estado: 'confirmada', nota: nota || null }]);
+        btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-calendar-plus"></i> GUARDAR RESERVA';
+        document.getElementById('modal-overlay').classList.remove('open');
+        document.getElementById('m-nombre').value = '';
+        document.getElementById('m-fecha').value = '';
+        document.getElementById('m-hora').value = '';
+        document.getElementById('m-personas').value = '';
+        document.getElementById('m-telefono').value = '';
+        document.getElementById('m-email').value = '';
+        document.getElementById('m-nota').value = '';
+        cargarReservas();
+    });
+
+    // ── CONFIGURACIÓN ──
+    let BURGERS_LIST = [];
+
+    async function cargarBurgersList() {
+        try {
+            const res = await fetch('carta.html');
+            const html = await res.text();
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const sec = doc.getElementById('hamburguesas');
+            BURGERS_LIST = sec
+                ? Array.from(sec.querySelectorAll('.bl-item__name')).map(el => el.textContent.trim())
+                : [];
+        } catch(e) {
+            BURGERS_LIST = [];
+        }
+    }
+
+    function renderAgotados(agotados) {
+        const grid = document.getElementById('agotados-grid');
+        grid.innerHTML = BURGERS_LIST.map(name => {
+            const isAgotado = agotados.includes(name);
+            return `<div style="display:flex;align-items:center;justify-content:space-between;background:var(--color-surface2);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px 14px;gap:10px;">
+                <span style="font-size:0.82rem;font-weight:500;">${name}</span>
+                <button onclick="toggleAgotado(this)" data-burger="${name}" data-agotado="${isAgotado ? '1' : '0'}"
+                    style="flex-shrink:0;border:none;border-radius:20px;padding:5px 14px;font-size:0.72rem;font-weight:700;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s;
+                    background:${isAgotado ? 'rgba(220,50,50,0.15)' : 'rgba(50,200,100,0.15)'};
+                    color:${isAgotado ? '#e05555' : '#4cba6e'};
+                    border:1px solid ${isAgotado ? 'rgba(220,50,50,0.4)' : 'rgba(50,200,100,0.3)'};">
+                    ${isAgotado ? 'AGOTADA' : 'DISPONIBLE'}
+                </button>
+            </div>`;
+        }).join('');
+    }
+
+    function renderFranjas(bloqueadas) {
+        const bMed = bloqueadas.mediodia || [];
+        const bNoc = bloqueadas.noche || [];
+        ['mediodia','noche'].forEach(turno => {
+            const slots = turno === 'mediodia' ? SLOTS_MEDIODIA : SLOTS_NOCHE;
+            const blocked = turno === 'mediodia' ? bMed : bNoc;
+            document.getElementById('franjas-' + turno).innerHTML = slots.map(h => {
+                const isBlocked = blocked.includes(h);
+                return `<button onclick="toggleFranja(this)" data-turno="${turno}" data-hora="${h}" data-blocked="${isBlocked ? '1' : '0'}"
+                    style="border:none;border-radius:20px;padding:5px 12px;font-size:0.72rem;font-weight:700;letter-spacing:0.06em;cursor:pointer;transition:all 0.2s;
+                    background:${isBlocked ? 'rgba(220,50,50,0.15)' : 'rgba(50,200,100,0.15)'};
+                    color:${isBlocked ? '#e05555' : '#4cba6e'};
+                    border:1px solid ${isBlocked ? 'rgba(220,50,50,0.4)' : 'rgba(50,200,100,0.3)'};">
+                    ${h}
+                </button>`;
+            }).join('');
+        });
+    }
+
+    function toggleFranja(btn) {
+        const isBlocked = btn.dataset.blocked === '1';
+        btn.dataset.blocked = isBlocked ? '0' : '1';
+        btn.style.background = isBlocked ? 'rgba(50,200,100,0.15)' : 'rgba(220,50,50,0.15)';
+        btn.style.color = isBlocked ? '#4cba6e' : '#e05555';
+        btn.style.borderColor = isBlocked ? 'rgba(50,200,100,0.3)' : 'rgba(220,50,50,0.4)';
+    }
+
+    function toggleAgotado(btn) {
+        const isAgotado = btn.dataset.agotado === '1';
+        btn.dataset.agotado = isAgotado ? '0' : '1';
+        btn.textContent = isAgotado ? 'DISPONIBLE' : 'AGOTADA';
+        btn.style.background = isAgotado ? 'rgba(50,200,100,0.15)' : 'rgba(220,50,50,0.15)';
+        btn.style.color = isAgotado ? '#4cba6e' : '#e05555';
+        btn.style.borderColor = isAgotado ? 'rgba(50,200,100,0.3)' : 'rgba(220,50,50,0.4)';
+    }
+
+    const BOOL_KEYS = ['reservas_activas', 'mediodia_activo', 'noche_activo', 'popup_activo', 'popup_carta_activo'];
+    const TEXT_KEYS = ['popup_texto', 'popup_titulo', 'popup_cta_texto', 'popup_cta_url', 'popup_imagen_url',
+                       'popup_carta_texto', 'popup_carta_titulo', 'popup_carta_cta_texto', 'popup_carta_cta_url', 'popup_carta_imagen_url',
+                       'agotados', 'franjas_bloqueadas'];
+    const SLOTS_MEDIODIA = ['12:30','13:00','13:30','14:00','14:30','15:00'];
+    const SLOTS_NOCHE    = ['19:30','20:00','20:30','21:00','21:30','22:00','22:30'];
+    let cfg = { aforo_salon: 24, aforo_terraza: 16, buffer_walkins_pct: 30, tiempo_turno_min: 60, reservas_activas: true, mediodia_activo: true, noche_activo: true, popup_activo: false, popup_texto: '' };
+    let reservasMap = {};
+
+    async function cargarConfig() {
+        const { data } = await supa.from('configuracion').select('clave,valor');
+        if (data) data.forEach(r => {
+            if (BOOL_KEYS.includes(r.clave)) cfg[r.clave] = r.valor === 'true';
+            else if (TEXT_KEYS.includes(r.clave)) cfg[r.clave] = r.valor;
+            else cfg[r.clave] = Number(r.valor);
+        });
+        await cargarBurgersList();
+        renderAgotados(JSON.parse(cfg.agotados || '[]'));
+        renderFranjas(JSON.parse(cfg.franjas_bloqueadas || '{"mediodia":[],"noche":[]}'));
+        document.getElementById('cfg-reservas-activas').checked = cfg.reservas_activas;
+        document.getElementById('cfg-aforo-salon').value  = cfg.aforo_salon;
+        document.getElementById('cfg-aforo-terraza').value = cfg.aforo_terraza;
+        document.getElementById('cfg-buffer').value = cfg.buffer_walkins_pct;
+        document.getElementById('cfg-turno').value  = cfg.tiempo_turno_min;
+        document.getElementById('cfg-mediodia').checked     = cfg.mediodia_activo;
+        document.getElementById('cfg-noche').checked        = cfg.noche_activo;
+        document.getElementById('cfg-popup-activo').checked    = cfg.popup_activo;
+        document.getElementById('cfg-popup-titulo').value      = cfg.popup_titulo     || '';
+        document.getElementById('cfg-popup-texto').value       = cfg.popup_texto      || '';
+        // Selector botón popup
+        const ctaMap = {
+            'carta.html': 'ver_carta',
+            'index.html#reservar': 'reservar',
+            'https://ankaraburger.last.shop/es/': 'pedir_online'
+        };
+        const ctaSel = document.getElementById('cfg-popup-cta-select');
+        ctaSel.value = ctaMap[cfg.popup_cta_url] || 'sin_boton';
+        // Preview imagen actual
+        if (cfg.popup_imagen_url) {
+            const prev = document.getElementById('popup-img-preview');
+            prev.innerHTML = `<img src="${cfg.popup_imagen_url}" style="width:100%;height:100%;object-fit:cover">`;
+            document.getElementById('popup-img-label-text').textContent = 'Cambiar imagen';
+        }
+        // Carta popup
+        document.getElementById('cfg-popup-carta-activo').checked = cfg.popup_carta_activo;
+        document.getElementById('cfg-popup-carta-titulo').value   = cfg.popup_carta_titulo || '';
+        document.getElementById('cfg-popup-carta-texto').value    = cfg.popup_carta_texto  || '';
+        const ctaMapCarta = {
+            'carta.html': 'ver_carta',
+            'index.html#reservar': 'reservar',
+            'https://ankaraburger.last.shop/es/': 'pedir_online'
+        };
+        document.getElementById('cfg-popup-carta-cta-select').value = ctaMapCarta[cfg.popup_carta_cta_url] || 'sin_boton';
+        if (cfg.popup_carta_imagen_url) {
+            const prev = document.getElementById('popup-carta-img-preview');
+            prev.innerHTML = `<img src="${cfg.popup_carta_imagen_url}" style="width:100%;height:100%;object-fit:cover">`;
+            document.getElementById('popup-carta-img-label-text').textContent = 'Cambiar imagen';
+        }
+        actualizarInfoCapacidad();
+    }
+
+    function actualizarInfoCapacidad() {
+        const salon   = parseInt(document.getElementById('cfg-aforo-salon').value)   || 24;
+        const terraza = parseInt(document.getElementById('cfg-aforo-terraza').value) || 16;
+        const buffer  = parseInt(document.getElementById('cfg-buffer').value)         || 30;
+        const onlineSalon   = Math.floor(salon   * (1 - buffer / 100));
+        const onlineTerraza = Math.floor(terraza * (1 - buffer / 100));
+        document.getElementById('cfg-capacidad-info').innerHTML =
+            `Con un buffer del <strong style="color:var(--color-text)">${buffer}%</strong>, la web acepta reservas hasta <strong style="color:var(--color-primary)">${onlineSalon} plazas en salón</strong> y <strong style="color:var(--color-primary)">${onlineTerraza} en terraza</strong>. Las ${salon + terraza - onlineSalon - onlineTerraza} restantes quedan para walk-ins.`;
+    }
+
+    ['cfg-aforo-salon','cfg-aforo-terraza','cfg-buffer'].forEach(id =>
+        document.getElementById(id).addEventListener('input', actualizarInfoCapacidad)
+    );
+
+    // ── UPLOAD IMAGEN POPUP ──
+    let popupImagenUrl = '';
+
+    function comprimirImagen(file, maxWidth = 1200, quality = 0.82) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const scale = Math.min(1, maxWidth / img.width);
+                    const canvas = document.createElement('canvas');
+                    canvas.width  = Math.round(img.width  * scale);
+                    canvas.height = Math.round(img.height * scale);
+                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob(resolve, 'image/jpeg', quality);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    document.getElementById('popup-img-input').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const label = document.getElementById('popup-img-label-text');
+        label.textContent = 'Comprimiendo...';
+        const compressed = await comprimirImagen(file);
+        const sizekb = Math.round(compressed.size / 1024);
+        label.textContent = 'Subiendo...';
+        const { error } = await supa.storage.from('popup').upload('popup-promo.jpg', compressed, { upsert: true, contentType: 'image/jpeg' });
+        if (error) { label.textContent = 'Error al subir'; console.error(error); return; }
+        const { data: { publicUrl } } = supa.storage.from('popup').getPublicUrl('popup-promo.jpg');
+        popupImagenUrl = publicUrl + '?t=' + Date.now();
+        document.getElementById('popup-img-preview').innerHTML = `<img src="${popupImagenUrl}" style="width:100%;height:100%;object-fit:cover">`;
+        label.textContent = `✓ Subida (${sizekb}KB)`;
+    });
+
+    let popupCartaImagenUrl = '';
+    document.getElementById('popup-carta-img-input').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const label = document.getElementById('popup-carta-img-label-text');
+        label.textContent = 'Comprimiendo...';
+        const compressed = await comprimirImagen(file);
+        const sizekb = Math.round(compressed.size / 1024);
+        label.textContent = 'Subiendo...';
+        const { error } = await supa.storage.from('popup').upload('popup-carta.jpg', compressed, { upsert: true, contentType: 'image/jpeg' });
+        if (error) { label.textContent = 'Error al subir'; console.error(error); return; }
+        const { data: { publicUrl } } = supa.storage.from('popup').getPublicUrl('popup-carta.jpg');
+        popupCartaImagenUrl = publicUrl + '?t=' + Date.now();
+        document.getElementById('popup-carta-img-preview').innerHTML = `<img src="${popupCartaImagenUrl}" style="width:100%;height:100%;object-fit:cover">`;
+        label.textContent = `✓ Subida (${sizekb}KB)`;
+    });
+
+    document.getElementById('btn-save-config').addEventListener('click', async () => {
+        const updates = [
+            { clave: 'reservas_activas',  valor: String(document.getElementById('cfg-reservas-activas').checked) },
+            { clave: 'aforo_salon',       valor: document.getElementById('cfg-aforo-salon').value },
+            { clave: 'aforo_terraza',     valor: document.getElementById('cfg-aforo-terraza').value },
+            { clave: 'buffer_walkins_pct',valor: document.getElementById('cfg-buffer').value },
+            { clave: 'tiempo_turno_min',  valor: document.getElementById('cfg-turno').value },
+            { clave: 'mediodia_activo',   valor: String(document.getElementById('cfg-mediodia').checked) },
+            { clave: 'noche_activo',      valor: String(document.getElementById('cfg-noche').checked) },
+            { clave: 'popup_activo',      valor: String(document.getElementById('cfg-popup-activo').checked) },
+            { clave: 'popup_titulo',      valor: document.getElementById('cfg-popup-titulo').value },
+            { clave: 'popup_texto',       valor: document.getElementById('cfg-popup-texto').value },
+            ...(() => {
+                const sel = document.getElementById('cfg-popup-cta-select').value;
+                const opts = {
+                    ver_carta:    { texto: 'VER CARTA', url: 'carta.html' },
+                    reservar:     { texto: 'RESERVAR MESA', url: 'index.html#reservar' },
+                    pedir_online: { texto: 'PEDIR ONLINE', url: 'https://ankaraburger.last.shop/es/' },
+                    sin_boton:    { texto: '', url: '' }
+                };
+                const o = opts[sel] || opts.sin_boton;
+                return [
+                    { clave: 'popup_cta_texto', valor: o.texto },
+                    { clave: 'popup_cta_url',   valor: o.url }
+                ];
+            })(),
+            { clave: 'popup_imagen_url',  valor: popupImagenUrl || cfg.popup_imagen_url || '' },
+            { clave: 'popup_carta_activo', valor: String(document.getElementById('cfg-popup-carta-activo').checked) },
+            { clave: 'popup_carta_titulo', valor: document.getElementById('cfg-popup-carta-titulo').value },
+            { clave: 'popup_carta_texto',  valor: document.getElementById('cfg-popup-carta-texto').value },
+            ...(() => {
+                const sel = document.getElementById('cfg-popup-carta-cta-select').value;
+                const opts = {
+                    ver_carta:    { texto: 'VER CARTA', url: 'carta.html' },
+                    reservar:     { texto: 'RESERVAR MESA', url: 'index.html#reservar' },
+                    pedir_online: { texto: 'PEDIR ONLINE', url: 'https://ankaraburger.last.shop/es/' },
+                    sin_boton:    { texto: '', url: '' }
+                };
+                const o = opts[sel] || opts.sin_boton;
+                return [
+                    { clave: 'popup_carta_cta_texto', valor: o.texto },
+                    { clave: 'popup_carta_cta_url',   valor: o.url }
+                ];
+            })(),
+            { clave: 'popup_carta_imagen_url', valor: popupCartaImagenUrl || cfg.popup_carta_imagen_url || '' },
+            { clave: 'agotados', valor: JSON.stringify(
+                Array.from(document.querySelectorAll('#agotados-grid button[data-agotado="1"]')).map(btn => btn.dataset.burger)
+            )},
+            { clave: 'franjas_bloqueadas', valor: JSON.stringify({
+                mediodia: Array.from(document.querySelectorAll('#franjas-mediodia button[data-blocked="1"]')).map(b => b.dataset.hora),
+                noche:    Array.from(document.querySelectorAll('#franjas-noche button[data-blocked="1"]')).map(b => b.dataset.hora)
+            })},
+        ];
+        await Promise.all(updates.map(u => supa.from('configuracion').update({ valor: u.valor }).eq('clave', u.clave)));
+        actualizarCapacidad();
+        const msg = document.getElementById('save-msg');
+        msg.classList.add('visible');
+        setTimeout(() => msg.classList.remove('visible'), 2500);
+    });
+
+    // Botón config
+    document.getElementById('btn-config').addEventListener('click', () => {
+        const panel = document.getElementById('config-panel');
+        const stats = document.getElementById('stats-panel');
+        const isOpen = panel.classList.toggle('open');
+        document.getElementById('btn-config').classList.toggle('active', isOpen);
+        if (isOpen) {
+            stats.classList.remove('open');
+            document.getElementById('btn-stats').classList.remove('active');
+        }
+        PANEL_HIDE.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = isOpen ? 'none' : '';
+        });
+        if (!isOpen) renderBannerPendientes();
+        if (isOpen) cargarConfig();
+    });
+
+    // ── SUSCRIPCIÓN REALTIME ──
+    supa.channel('reservas-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'reservas' }, () => cargarReservas())
+        .subscribe();
+</script>
+</body>
+</html>
