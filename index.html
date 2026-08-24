@@ -1941,19 +1941,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             return;
         }
 
-        // Corte de reservas para el mismo día: 12:30 viernes a domingo, 19:30 el resto de días
-        const hoyStr = new Date().toISOString().split('T')[0];
-        if (fecha === hoyStr) {
-            const now = new Date();
-            const minutosAhora = now.getHours() * 60 + now.getMinutes();
-            const esFinDeSemana = [5, 6, 0].includes(dia); // Vie, Sáb, Dom
-            const corteMinutos = esFinDeSemana ? 12 * 60 + 30 : 19 * 60 + 30;
-            if (minutosAhora >= corteMinutos) {
-                mostrarError('Ya no se aceptan más reservas para hoy. Elige otro día o llámanos directamente.');
-                servicioEl.innerHTML = '<option value="" disabled selected>¿Cuándo?</option>';
-                return;
-            }
-        }
+        // Fecha de hoy en horario local: toISOString() da UTC y desfasa de madrugada
+        const ahora = new Date();
+        const hoyStr = `${ahora.getFullYear()}-${String(ahora.getMonth() + 1).padStart(2, '0')}-${String(ahora.getDate()).padStart(2, '0')}`;
+        const esHoy = fecha === hoyStr;
+        const minutosAhora = ahora.getHours() * 60 + ahora.getMinutes();
 
         // Comprobar días bloqueados
         // Con tope de espera: si la base de datos no responde, seguir adelante en vez de
@@ -1969,8 +1961,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
 
         // Filtrar servicios según día Y configuración de turnos
-        const tieneMediodia = MEDIODIA_ACTIVO && [0, 5, 6].includes(dia); // Dom, Vie, Sáb
-        const tieneNoche    = NOCHE_ACTIVO    && [0, 2, 3, 4, 5, 6].includes(dia); // Dom, Mar, Mié, Jue, Vie, Sáb
+        let tieneMediodia = MEDIODIA_ACTIVO && [0, 5, 6].includes(dia); // Dom, Vie, Sáb
+        let tieneNoche    = NOCHE_ACTIVO    && [0, 2, 3, 4, 5, 6].includes(dia); // Dom, Mar, Mié, Jue, Vie, Sáb
+
+        // Corte de reservas para el mismo día, por turno: mediodía cierra a las 12:30,
+        // noche cierra a las 19:30 (justo cuando arranca cada servicio).
+        if (esHoy) {
+            if (minutosAhora >= 12 * 60 + 30) tieneMediodia = false;
+            if (minutosAhora >= 19 * 60 + 30) tieneNoche = false;
+            if (!tieneMediodia && !tieneNoche) {
+                mostrarError('Ya no se aceptan más reservas para hoy. Elige otro día o llámanos directamente.');
+                servicioEl.innerHTML = '<option value="" disabled selected>¿Cuándo?</option>';
+                return;
+            }
+        }
+
         let options = '<option value="" disabled selected>¿Cuándo?</option>';
         if (tieneMediodia) options += '<option value="mediodia">Mediodía (12:30–15:30)</option>';
         if (tieneNoche)    options += '<option value="noche">Noche (19:30–23:30)</option>';
