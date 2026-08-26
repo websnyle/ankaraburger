@@ -444,6 +444,9 @@
             <button class="btn-stats" id="btn-stats" title="Estadísticas">
                 <i class="fa-solid fa-chart-simple"></i>
             </button>
+            <button class="btn-stats" id="btn-clientes" title="Clientes">
+                <i class="fa-solid fa-address-book"></i>
+            </button>
             <button class="btn-config" id="btn-config">
                 <i class="fa-solid fa-sliders"></i>
             </button>
@@ -521,6 +524,35 @@
         <div class="stats-grid" id="stats-grid"></div>
         <div class="config-section__title" style="font-size:0.65rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-primary);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid rgba(200,168,75,0.12)">Origen de reservas</div>
         <div class="origen-bar" id="origen-bar"></div>
+    </div>
+
+    <!-- CLIENTES PANEL -->
+    <div class="stats-panel" id="clientes-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+            <div class="config-section__title" style="margin-bottom:0;padding-bottom:0;border-bottom:none">Clientes</div>
+            <button class="btn-stats" id="btn-exportar-clientes" style="padding:8px 14px">
+                <i class="fa-solid fa-file-arrow-down"></i> Exportar para promociones (CSV)
+            </button>
+        </div>
+        <p style="font-size:0.78rem;color:var(--color-muted);margin-bottom:16px;line-height:1.5">
+            Listado de clientes a partir de sus reservas por la web. La exportación solo incluye a quienes han marcado
+            "quiero recibir promociones" al reservar — el resto se ve aquí pero no debe usarse para marketing.
+        </p>
+        <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:0.85rem">
+                <thead>
+                    <tr style="border-bottom:1px solid rgba(200,168,75,0.2);text-align:left">
+                        <th style="padding:10px 8px;color:var(--color-primary);font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase">Cliente</th>
+                        <th style="padding:10px 8px;color:var(--color-primary);font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase">Teléfono</th>
+                        <th style="padding:10px 8px;color:var(--color-primary);font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;text-align:center">Visitas</th>
+                        <th style="padding:10px 8px;color:var(--color-primary);font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase">Última reserva</th>
+                        <th style="padding:10px 8px;color:var(--color-primary);font-size:0.7rem;letter-spacing:0.06em;text-transform:uppercase;text-align:center">Promos</th>
+                    </tr>
+                </thead>
+                <tbody id="clientes-tbody"></tbody>
+            </table>
+            <div id="clientes-vacio" style="display:none;text-align:center;padding:30px;color:var(--color-muted);font-size:0.85rem">Todavía no hay clientes con teléfono registrado.</div>
+        </div>
     </div>
 
     <!-- CONFIG PANEL -->
@@ -1282,11 +1314,14 @@
     document.getElementById('btn-stats').addEventListener('click', () => {
         const panel = document.getElementById('stats-panel');
         const config = document.getElementById('config-panel');
+        const clientes = document.getElementById('clientes-panel');
         const isOpen = panel.classList.toggle('open');
         document.getElementById('btn-stats').classList.toggle('active', isOpen);
         if (isOpen) {
             config.classList.remove('open');
+            clientes.classList.remove('open');
             document.getElementById('btn-config').classList.remove('active');
+            document.getElementById('btn-clientes').classList.remove('active');
             renderStats();
         }
         PANEL_HIDE.forEach(id => {
@@ -1295,6 +1330,80 @@
         });
         // Restaurar banner pendientes si hay
         if (!isOpen) renderBannerPendientes();
+    });
+
+    // ── CLIENTES PANEL ──
+    function agruparClientes() {
+        // Agrupa por teléfono: sin teléfono no hay forma fiable de identificar al mismo cliente entre reservas.
+        const porTelefono = {};
+        reservas.forEach(r => {
+            const tel = (r.telefono || '').trim();
+            if (!tel) return;
+            if (!porTelefono[tel]) {
+                porTelefono[tel] = { telefono: tel, nombre: r.nombre, ultimaFecha: r.fecha, visitas: 0, aceptaPromos: false };
+            }
+            const c = porTelefono[tel];
+            c.visitas += 1;
+            if (r.fecha > c.ultimaFecha) { c.ultimaFecha = r.fecha; c.nombre = r.nombre; }
+            if (r.acepta_promos) c.aceptaPromos = true;
+        });
+        return Object.values(porTelefono).sort((a, b) => b.visitas - a.visitas);
+    }
+
+    function renderClientes() {
+        const clientes = agruparClientes();
+        const tbody = document.getElementById('clientes-tbody');
+        document.getElementById('clientes-vacio').style.display = clientes.length ? 'none' : 'block';
+        tbody.innerHTML = clientes.map(c => {
+            const fechaFmt = new Date(c.ultimaFecha + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+            return `<tr style="border-bottom:1px solid rgba(200,168,75,0.08)">
+                <td style="padding:10px 8px">${c.nombre}</td>
+                <td style="padding:10px 8px;color:var(--color-muted)">${c.telefono}</td>
+                <td style="padding:10px 8px;text-align:center">${c.visitas}</td>
+                <td style="padding:10px 8px;color:var(--color-muted)">${fechaFmt}</td>
+                <td style="padding:10px 8px;text-align:center">${c.aceptaPromos ? '<i class="fa-solid fa-check" style="color:var(--color-primary)"></i>' : '<span style="color:var(--color-muted)">—</span>'}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    document.getElementById('btn-clientes').addEventListener('click', () => {
+        const panel = document.getElementById('clientes-panel');
+        const stats = document.getElementById('stats-panel');
+        const config = document.getElementById('config-panel');
+        const isOpen = panel.classList.toggle('open');
+        document.getElementById('btn-clientes').classList.toggle('active', isOpen);
+        if (isOpen) {
+            stats.classList.remove('open');
+            config.classList.remove('open');
+            document.getElementById('btn-stats').classList.remove('active');
+            document.getElementById('btn-config').classList.remove('active');
+            renderClientes();
+        }
+        PANEL_HIDE.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = isOpen ? 'none' : '';
+        });
+        if (!isOpen) renderBannerPendientes();
+    });
+
+    document.getElementById('btn-exportar-clientes').addEventListener('click', () => {
+        const clientes = agruparClientes().filter(c => c.aceptaPromos);
+        if (!clientes.length) {
+            alert('Todavía no hay ningún cliente que haya aceptado recibir promociones.');
+            return;
+        }
+        const filas = [['Nombre', 'Telefono', 'Visitas', 'Ultima_reserva'].join(',')];
+        clientes.forEach(c => {
+            const nombreSeguro = `"${c.nombre.replace(/"/g, '""')}"`;
+            filas.push([nombreSeguro, c.telefono, c.visitas, c.ultimaFecha].join(','));
+        });
+        const blob = new Blob(['﻿' + filas.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `clientes-promos-ankara-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
     });
 
     // Periodo stats
@@ -1619,11 +1728,14 @@
     document.getElementById('btn-config').addEventListener('click', () => {
         const panel = document.getElementById('config-panel');
         const stats = document.getElementById('stats-panel');
+        const clientes = document.getElementById('clientes-panel');
         const isOpen = panel.classList.toggle('open');
         document.getElementById('btn-config').classList.toggle('active', isOpen);
         if (isOpen) {
             stats.classList.remove('open');
+            clientes.classList.remove('open');
             document.getElementById('btn-stats').classList.remove('active');
+            document.getElementById('btn-clientes').classList.remove('active');
         }
         PANEL_HIDE.forEach(id => {
             const el = document.getElementById(id);
