@@ -1594,6 +1594,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div id="espera-ok" style="display:none;font-size:0.82rem;color:#5B9BD5;margin-top:8px;text-align:center">✓ Apuntado. Te avisaremos si se libera.</div>
         </div>
 
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:2px">
+            <label style="display:flex;align-items:flex-start;gap:8px;font-size:0.78rem;color:var(--color-muted);line-height:1.4;cursor:pointer">
+                <input type="checkbox" id="res-acepta-privacidad" required style="margin-top:2px;flex-shrink:0;accent-color:var(--color-primary)">
+                <span>Acepto la <a href="privacidad.html" target="_blank" style="color:var(--color-primary);text-decoration:underline">política de privacidad</a> para gestionar mi reserva</span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:8px;font-size:0.78rem;color:var(--color-muted);line-height:1.4;cursor:pointer">
+                <input type="checkbox" id="res-acepta-promos" style="margin-top:2px;flex-shrink:0;accent-color:var(--color-primary)">
+                <span>Quiero recibir promociones y novedades de Ankara Burger por WhatsApp o email</span>
+            </label>
+        </div>
         <button type="submit" class="reservar__submit" id="reservar-btn">
             <i class="fa-solid fa-calendar-check"></i>
             RESERVAR
@@ -2078,8 +2088,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         const personas = parseInt(document.getElementById('res-personas').value) || 0;
         const email    = document.getElementById('res-email').value.trim();
         const telefono = document.getElementById('res-telefono').value.trim();
+        const aceptaPrivacidad = document.getElementById('res-acepta-privacidad').checked;
+        const aceptaPromos     = document.getElementById('res-acepta-promos').checked;
         if (!nombre || !fecha || !servicio || !hora || !personas) {
             alert('Por favor completa todos los campos obligatorios.');
+            return;
+        }
+        if (!aceptaPrivacidad) {
+            alert('Debes aceptar la política de privacidad para reservar.');
             return;
         }
         const btn = document.getElementById('reservar-btn');
@@ -2095,7 +2111,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             nombre, fecha, hora, personas, telefono, email: email || null, origen: 'web',
             zona: zonaSeleccionada,
             estado: esPendiente ? 'pendiente' : 'confirmada',
-            nota: nota || null
+            nota: nota || null,
+            acepta_promos: aceptaPromos
         }]);
 
         btn.disabled = false;
