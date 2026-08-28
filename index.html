@@ -2064,6 +2064,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         const hora     = document.getElementById('res-hora').value;
         const personas = parseInt(document.getElementById('res-personas').value) || 1;
         if (!nombre || !fecha || !servicio || !hora) return;
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: 'click_lista_espera' });
         const btn = document.getElementById('espera-btn');
         btn.disabled = true;
         await supa.from('lista_espera').insert([{
@@ -2465,6 +2467,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         a.addEventListener('click', () => {
             window.dataLayer = window.dataLayer || [];
             window.dataLayer.push({ event: 'click_ver_carta', click_ubicacion: a.className || a.closest('[class]')?.className || 'desconocida' });
+        });
+    });
+    document.querySelectorAll('a[href="#reservar"]').forEach(a => {
+        a.addEventListener('click', () => {
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({ event: 'click_reservar_cta', click_ubicacion: a.className || a.closest('[class]')?.className || 'desconocida' });
         });
     });
 
