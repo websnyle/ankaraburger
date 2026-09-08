@@ -958,15 +958,19 @@
         </div>
         <div class="modal__field">
             <label>Precio (€)</label>
-            <input type="number" id="p-precio" step="0.10" min="0" placeholder="0.00">
+            <input type="number" id="p-precio" step="0.01" min="0" placeholder="0.00">
         </div>
         <div class="modal__field" id="p-descripcion-wrap">
             <label>Descripción <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--color-muted)">(opcional)</span></label>
             <textarea id="p-descripcion" rows="2" placeholder="Ingredientes, elaboración..." style="background:var(--color-surface2);border:1px solid rgba(200,168,75,0.2);border-radius:3px;color:var(--color-text);font-family:var(--font-body);font-size:0.88rem;padding:10px 12px;width:100%;outline:none;resize:none"></textarea>
         </div>
         <div class="modal__field" id="p-badge-wrap">
-            <label>Etiqueta destacada <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--color-muted)">(opcional, ej: ★ BEST SELLER)</span></label>
-            <input type="text" id="p-badge" placeholder="★ BEST SELLER">
+            <label>Etiqueta destacada <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--color-muted)">(opcional)</span></label>
+            <select id="p-badge-select">
+                <option value="">— Sin etiqueta —</option>
+                <option value="__nueva__">+ Añadir etiqueta nueva…</option>
+            </select>
+            <input type="text" id="p-badge-nueva" placeholder="★ BEST SELLER" style="display:none;margin-top:8px">
         </div>
         <div class="modal__field" id="p-imagen-wrap">
             <label>Foto <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--color-muted)">(opcional)</span></label>
@@ -1770,6 +1774,34 @@
         else { nuevo.style.display = 'none'; }
     });
 
+    // Las etiquetas destacadas (★ BEST SELLER, ★ MVP...) se reutilizan entre categorías,
+    // así que aquí se listan todas las que ya existen en la carta, no solo las de la
+    // categoría actual.
+    function poblarBadgesSelect(valorActual) {
+        const sel = document.getElementById('p-badge-select');
+        const nuevo = document.getElementById('p-badge-nueva');
+        const badges = [...new Set(cartaItems.filter(it => it.badge).map(it => it.badge))];
+        if (valorActual && !badges.includes(valorActual)) badges.push(valorActual);
+        sel.innerHTML = '<option value="">— Sin etiqueta —</option>' +
+            badges.map(b => `<option value="${escHtmlAdmin(b)}">${escHtmlAdmin(b)}</option>`).join('') +
+            '<option value="__nueva__">+ Añadir etiqueta nueva…</option>';
+        sel.value = valorActual || '';
+        nuevo.style.display = 'none';
+        nuevo.value = '';
+    }
+    document.getElementById('p-badge-select').addEventListener('change', () => {
+        const sel = document.getElementById('p-badge-select');
+        const nuevo = document.getElementById('p-badge-nueva');
+        if (sel.value === '__nueva__') { nuevo.style.display = 'block'; nuevo.focus(); }
+        else { nuevo.style.display = 'none'; }
+    });
+
+    // Formato de precio consistente: siempre 2 decimales (12 -> 12.00, 12.5 -> 12.50)
+    document.getElementById('p-precio').addEventListener('blur', (e) => {
+        if (e.target.value === '') return;
+        e.target.value = Math.max(0, parseFloat(e.target.value) || 0).toFixed(2);
+    });
+
     function actualizarCamposModalPlato(resetLinea) {
         const cat = document.getElementById('p-categoria').value;
         document.getElementById('p-linea-wrap').style.display = 'flex';
@@ -1792,9 +1824,9 @@
         document.getElementById('p-categoria').value = categoria;
         poblarLineasSelect(categoria, it ? (it.linea || '') : '');
         document.getElementById('p-nombre').value = it ? it.nombre : '';
-        document.getElementById('p-precio').value = it ? it.precio : '';
+        document.getElementById('p-precio').value = it ? Number(it.precio).toFixed(2) : '';
         document.getElementById('p-descripcion').value = it ? (it.descripcion || '') : '';
-        document.getElementById('p-badge').value = it ? (it.badge || '') : '';
+        poblarBadgesSelect(it ? (it.badge || '') : '');
         document.getElementById('p-disponible').checked = it ? it.disponible : true;
         const preview = document.getElementById('p-imagen-preview');
         if (it && it.imagen_url) { preview.src = it.imagen_url; preview.classList.add('show'); }
@@ -1860,13 +1892,18 @@
             ? (document.getElementById('p-linea-nueva').value.trim() || null)
             : (lineaSel || null);
 
+        const badgeSel = document.getElementById('p-badge-select').value;
+        const badge = badgeSel === '__nueva__'
+            ? (document.getElementById('p-badge-nueva').value.trim() || null)
+            : (badgeSel || null);
+
         const payload = {
             categoria,
             linea,
             nombre,
-            precio,
+            precio: Math.round(precio * 100) / 100,
             descripcion: document.getElementById('p-descripcion').value.trim() || null,
-            badge: document.getElementById('p-badge').value.trim() || null,
+            badge,
             imagen_url: imagenUrl,
             disponible: document.getElementById('p-disponible').checked
         };
