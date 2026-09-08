@@ -235,6 +235,8 @@
         .carta-item__btn { background: none; border: none; color: var(--color-muted); font-size: 0.95rem; cursor: pointer; padding: 4px; }
         .carta-item__btn:hover { color: var(--color-primary); }
         .carta-item__btn.del:hover { color: #e05252; }
+        .carta-item__btn:disabled { opacity: 0.2; cursor: not-allowed; }
+        .carta-item__btn:disabled:hover { color: var(--color-muted); }
         .btn-nuevo-plato { background: var(--color-primary); color: #000; font-family: var(--font-display); font-size: 0.82rem; letter-spacing: 0.08em; padding: 8px 14px; border: none; border-radius: 3px; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-bottom: 18px; }
         .modal__img-preview { width: 100%; height: 140px; border-radius: 6px; object-fit: cover; background: var(--color-surface2); margin-bottom: 8px; display: none; }
         .modal__img-preview.show { display: block; }
@@ -902,7 +904,11 @@
         </div>
         <div class="modal__field" id="p-linea-wrap">
             <label>Línea / Grupo <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--color-muted)">(opcional)</span></label>
-            <input type="text" id="p-linea" placeholder="Ej: LÍNEA ARGENTINA, A 0,80€...">
+            <select id="p-linea-select">
+                <option value="">— Sin línea —</option>
+                <option value="__nueva__">+ Añadir línea nueva…</option>
+            </select>
+            <input type="text" id="p-linea-nueva" placeholder="Nombre de la nueva línea (ej: LÍNEA ARGENTINA)" style="display:none;margin-top:8px">
         </div>
         <div class="modal__field">
             <label>Nombre</label>
@@ -1513,6 +1519,7 @@
 
     // ── CARTA PANEL ──
     const CARTA_CAT_LABEL = { tapas: 'Tapas', hamburguesas: 'Hamburguesas', patatas: 'Patatas', extras: 'Extras', salsas: 'Salsas', postres: 'Postres' };
+    const CARTA_CAT_ORDER = ['tapas', 'hamburguesas', 'patatas', 'extras', 'salsas', 'postres'];
     const CARTA_CATS_SIN_DESC  = ['extras', 'salsas'];
     const CARTA_CATS_SIN_BADGE = ['extras', 'salsas'];
     const CARTA_CATS_SIN_IMG   = ['extras'];
@@ -1525,13 +1532,28 @@
         cartaItems = error ? [] : (data || []);
     }
 
+    // Agrupa siempre por categoría (en un orden fijo) y por orden dentro de cada categoría.
+    // Así, aunque el número "orden" de dos categorías distintas llegue a coincidir (algo que
+    // puede pasar al añadir platos), la carta admin nunca mezcla categorías entre sí.
+    function itemsCartaAgrupados(filtroCat) {
+        const cats = filtroCat === 'todas' ? CARTA_CAT_ORDER : [filtroCat];
+        let out = [];
+        cats.forEach(cat => {
+            out = out.concat(
+                cartaItems.filter(it => it.categoria === cat).sort((a, b) => (a.orden || 0) - (b.orden || 0))
+            );
+        });
+        return out;
+    }
+
     function renderCartaAdmin() {
         const cont = document.getElementById('carta-lista');
-        const items = cartaFiltroCat === 'todas' ? cartaItems : cartaItems.filter(it => it.categoria === cartaFiltroCat);
+        const items = itemsCartaAgrupados(cartaFiltroCat);
         document.getElementById('carta-vacio').style.display = items.length ? 'none' : 'block';
+        const puedeReordenar = cartaFiltroCat !== 'todas';
         let html = '';
         let lineaActual = Symbol();
-        items.forEach(it => {
+        items.forEach((it, idx) => {
             if (it.linea !== lineaActual) {
                 lineaActual = it.linea;
                 if (it.linea) html += `<div class="carta-linea-hdr">${escHtmlAdmin(it.linea)}</div>`;
@@ -1539,6 +1561,12 @@
             const img = it.imagen_url
                 ? `<img class="carta-item__img" src="${escHtmlAdmin(it.imagen_url)}" loading="lazy">`
                 : `<div class="carta-item__img carta-item__img--placeholder"><i class="fa-solid fa-image"></i></div>`;
+            const esPrimero = idx === 0 || items[idx - 1].categoria !== it.categoria;
+            const esUltimo = idx === items.length - 1 || items[idx + 1].categoria !== it.categoria;
+            const reorderBtns = puedeReordenar
+                ? `<button class="carta-item__btn" title="Subir" ${esPrimero ? 'disabled' : ''} onclick="moverPlato('${it.id}',-1)"><i class="fa-solid fa-arrow-up"></i></button>
+                   <button class="carta-item__btn" title="Bajar" ${esUltimo ? 'disabled' : ''} onclick="moverPlato('${it.id}',1)"><i class="fa-solid fa-arrow-down"></i></button>`
+                : `<span title="Filtra por una categoría para poder reordenar" style="color:var(--color-muted);font-size:0.7rem"><i class="fa-solid fa-arrows-up-down"></i></span>`;
             html += `<div class="carta-item" data-id="${it.id}">
                 ${img}
                 <div class="carta-item__info">
@@ -1546,6 +1574,7 @@
                     <div class="carta-item__price">${Number(it.precio).toFixed(2)}€ · ${CARTA_CAT_LABEL[it.categoria] || it.categoria}</div>
                 </div>
                 <div class="carta-item__actions">
+                    ${reorderBtns}
                     <label class="toggle" title="Disponible">
                         <input type="checkbox" ${it.disponible ? 'checked' : ''} onchange="toggleCartaDisponible('${it.id}', this.checked)">
                         <span class="toggle-slider"></span>
@@ -1566,6 +1595,22 @@
         await supa.from('carta_items').update({ disponible }).eq('id', id);
         const it = cartaItems.find(i => i.id === id);
         if (it) it.disponible = disponible;
+        renderCartaAdmin();
+    }
+
+    async function moverPlato(id, direccion) {
+        if (cartaFiltroCat === 'todas') return;
+        const lista = cartaItems.filter(it => it.categoria === cartaFiltroCat).sort((a, b) => (a.orden || 0) - (b.orden || 0));
+        const idx = lista.findIndex(it => it.id === id);
+        const otroIdx = idx + direccion;
+        if (idx === -1 || otroIdx < 0 || otroIdx >= lista.length) return;
+        const a = lista[idx], b = lista[otroIdx];
+        const ordenA = a.orden, ordenB = b.orden;
+        await Promise.all([
+            supa.from('carta_items').update({ orden: ordenB }).eq('id', a.id),
+            supa.from('carta_items').update({ orden: ordenA }).eq('id', b.id)
+        ]);
+        a.orden = ordenB; b.orden = ordenA;
         renderCartaAdmin();
     }
 
@@ -1603,25 +1648,46 @@
     });
 
     // ── MODAL PLATO ──
-    function actualizarCamposModalPlato() {
+    function poblarLineasSelect(categoria, valorActual) {
+        const sel = document.getElementById('p-linea-select');
+        const nuevo = document.getElementById('p-linea-nueva');
+        const lineas = [...new Set(cartaItems.filter(it => it.categoria === categoria && it.linea).map(it => it.linea))];
+        if (valorActual && !lineas.includes(valorActual)) lineas.push(valorActual);
+        sel.innerHTML = '<option value="">— Sin línea —</option>' +
+            lineas.map(l => `<option value="${escHtmlAdmin(l)}">${escHtmlAdmin(l)}</option>`).join('') +
+            '<option value="__nueva__">+ Añadir línea nueva…</option>';
+        sel.value = valorActual || '';
+        nuevo.style.display = 'none';
+        nuevo.value = '';
+    }
+    document.getElementById('p-linea-select').addEventListener('change', () => {
+        const sel = document.getElementById('p-linea-select');
+        const nuevo = document.getElementById('p-linea-nueva');
+        if (sel.value === '__nueva__') { nuevo.style.display = 'block'; nuevo.focus(); }
+        else { nuevo.style.display = 'none'; }
+    });
+
+    function actualizarCamposModalPlato(resetLinea) {
         const cat = document.getElementById('p-categoria').value;
         document.getElementById('p-linea-wrap').style.display = 'flex';
         document.getElementById('p-descripcion-wrap').style.display = CARTA_CATS_SIN_DESC.includes(cat) ? 'none' : 'flex';
         document.getElementById('p-badge-wrap').style.display = CARTA_CATS_SIN_BADGE.includes(cat) ? 'none' : 'flex';
         document.getElementById('p-imagen-wrap').style.display = CARTA_CATS_SIN_IMG.includes(cat) ? 'none' : 'flex';
+        if (resetLinea) poblarLineasSelect(cat, '');
     }
-    document.getElementById('p-categoria').addEventListener('change', actualizarCamposModalPlato);
+    document.getElementById('p-categoria').addEventListener('change', () => actualizarCamposModalPlato(true));
 
     function abrirModalPlato(id) {
         cartaImagenPendiente = null;
         document.getElementById('p-imagen-file').value = '';
         document.getElementById('p-imagen-status').textContent = '';
         const it = id ? cartaItems.find(i => i.id === id) : null;
+        const categoria = it ? it.categoria : (cartaFiltroCat !== 'todas' ? cartaFiltroCat : 'tapas');
         document.getElementById('modal-plato-titulo').textContent = it ? 'EDITAR PLATO' : 'NUEVO PLATO';
         document.getElementById('p-id').value = it ? it.id : '';
         document.getElementById('p-imagen-url').value = it ? (it.imagen_url || '') : '';
-        document.getElementById('p-categoria').value = it ? it.categoria : (cartaFiltroCat !== 'todas' ? cartaFiltroCat : 'tapas');
-        document.getElementById('p-linea').value = it ? (it.linea || '') : '';
+        document.getElementById('p-categoria').value = categoria;
+        poblarLineasSelect(categoria, it ? (it.linea || '') : '');
         document.getElementById('p-nombre').value = it ? it.nombre : '';
         document.getElementById('p-precio').value = it ? it.precio : '';
         document.getElementById('p-descripcion').value = it ? (it.descripcion || '') : '';
@@ -1630,7 +1696,7 @@
         const preview = document.getElementById('p-imagen-preview');
         if (it && it.imagen_url) { preview.src = it.imagen_url; preview.classList.add('show'); }
         else { preview.classList.remove('show'); preview.src = ''; }
-        actualizarCamposModalPlato();
+        actualizarCamposModalPlato(false);
         document.getElementById('modal-plato-overlay').classList.add('open');
     }
 
@@ -1686,9 +1752,14 @@
             imagenUrl = publicUrl;
         }
 
+        const lineaSel = document.getElementById('p-linea-select').value;
+        const linea = lineaSel === '__nueva__'
+            ? (document.getElementById('p-linea-nueva').value.trim() || null)
+            : (lineaSel || null);
+
         const payload = {
             categoria,
-            linea: document.getElementById('p-linea').value.trim() || null,
+            linea,
             nombre,
             precio,
             descripcion: document.getElementById('p-descripcion').value.trim() || null,
@@ -1700,7 +1771,7 @@
         if (id) {
             await supa.from('carta_items').update(payload).eq('id', id);
         } else {
-            const maxOrden = cartaItems.reduce((m, it) => Math.max(m, it.orden || 0), 0);
+            const maxOrden = cartaItems.filter(it => it.categoria === categoria).reduce((m, it) => Math.max(m, it.orden || 0), 0);
             await supa.from('carta_items').insert([{ ...payload, orden: maxOrden + 1 }]);
         }
 
