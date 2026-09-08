@@ -224,6 +224,8 @@
         .carta-cat-btn { background: var(--color-surface2); border: 1px solid rgba(200,168,75,0.2); color: var(--color-muted); font-family: var(--font-body); font-size: 0.78rem; font-weight: 600; padding: 7px 13px; border-radius: 20px; cursor: pointer; transition: all 0.2s; }
         .carta-cat-btn.active { background: var(--color-primary); color: #000; border-color: var(--color-primary); }
         .carta-linea-hdr { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted); margin: 18px 0 8px; }
+        .carta-cat-hdr { font-size: 0.85rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-primary); margin: 26px 0 10px; padding-top: 18px; border-top: 1px solid rgba(200,168,75,0.18); }
+        .carta-cat-hdr:first-child { margin-top: 0; padding-top: 0; border-top: none; }
         .carta-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(200,168,75,0.08); }
         .carta-item__img { width: 44px; height: 44px; border-radius: 6px; object-fit: cover; background: var(--color-surface2); flex-shrink: 0; }
         .carta-item__img--placeholder { display: flex; align-items: center; justify-content: center; color: var(--color-muted); font-size: 1rem; }
@@ -1553,7 +1555,15 @@
         const puedeReordenar = cartaFiltroCat !== 'todas';
         let html = '';
         let lineaActual = Symbol();
+        let categoriaActual = Symbol();
         items.forEach((it, idx) => {
+            if (it.categoria !== categoriaActual) {
+                categoriaActual = it.categoria;
+                lineaActual = Symbol(); // nueva categoría: fuerza a reevaluar la cabecera de línea también
+                if (cartaFiltroCat === 'todas') {
+                    html += `<div class="carta-cat-hdr">${CARTA_CAT_LABEL[it.categoria] || it.categoria}</div>`;
+                }
+            }
             if (it.linea !== lineaActual) {
                 lineaActual = it.linea;
                 if (it.linea) html += `<div class="carta-linea-hdr">${escHtmlAdmin(it.linea)}</div>`;
@@ -1596,6 +1606,31 @@
         const it = cartaItems.find(i => i.id === id);
         if (it) it.disponible = disponible;
         renderCartaAdmin();
+    }
+
+    // Inserta un plato nuevo justo después del último plato de su misma línea (haciendo
+    // hueco si hace falta), en vez de siempre al final de toda la categoría — así una
+    // hamburguesa nueva de "LÍNEA ARGENTINA" aparece junto a las demás de esa línea.
+    async function insertarPlatoConOrden(categoria, linea, payload) {
+        const itemsCat = cartaItems.filter(it => it.categoria === categoria).sort((a, b) => (a.orden || 0) - (b.orden || 0));
+        let ordenNuevo;
+        if (!itemsCat.length) {
+            ordenNuevo = 1;
+        } else if (!linea) {
+            ordenNuevo = itemsCat[itemsCat.length - 1].orden + 1;
+        } else {
+            const idxUltimoDeLinea = itemsCat.map(it => it.linea).lastIndexOf(linea);
+            if (idxUltimoDeLinea === -1) {
+                ordenNuevo = itemsCat[itemsCat.length - 1].orden + 1;
+            } else {
+                ordenNuevo = itemsCat[idxUltimoDeLinea].orden + 1;
+                const aDesplazar = itemsCat.filter(it => it.orden >= ordenNuevo);
+                if (aDesplazar.length) {
+                    await Promise.all(aDesplazar.map(it => supa.from('carta_items').update({ orden: it.orden + 1 }).eq('id', it.id)));
+                }
+            }
+        }
+        await supa.from('carta_items').insert([{ ...payload, categoria, linea, orden: ordenNuevo }]);
     }
 
     async function moverPlato(id, direccion) {
@@ -1771,8 +1806,7 @@
         if (id) {
             await supa.from('carta_items').update(payload).eq('id', id);
         } else {
-            const maxOrden = cartaItems.filter(it => it.categoria === categoria).reduce((m, it) => Math.max(m, it.orden || 0), 0);
-            await supa.from('carta_items').insert([{ ...payload, orden: maxOrden + 1 }]);
+            await insertarPlatoConOrden(categoria, linea, payload);
         }
 
         btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> GUARDAR PLATO';
