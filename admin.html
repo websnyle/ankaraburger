@@ -1095,9 +1095,16 @@
 
     // ── ESTADÍSTICAS ──
     let statsPeriodo = 'todo';
+    // Reservas de prueba (nombre contiene "prueba" o "test") — no deben contar en
+    // las estadísticas que se le enseñan al cliente (totales, % cancelaciones, etc.)
+    function esReservaPrueba(r) {
+        return /prueba|test/i.test(r.nombre || '');
+    }
+
     function renderStats() {
         const hoy = new Date();
-        let filtradas = reservas.filter(r => r.estado === 'confirmada');
+        const reservasReales = reservas.filter(r => !esReservaPrueba(r));
+        let filtradas = reservasReales.filter(r => r.estado === 'confirmada');
         if (statsPeriodo === 'mes') {
             const mes = hoy.toISOString().slice(0,7);
             filtradas = filtradas.filter(r => r.fecha && r.fecha.startsWith(mes));
@@ -1112,8 +1119,8 @@
             if (hasta) filtradas = filtradas.filter(r => r.fecha <= hasta);
         }
         const confirmadas = filtradas;
-        const canceladas  = reservas.filter(r => r.estado === 'cancelada');
-        const todas       = reservas.filter(r => r.estado !== 'pendiente');
+        const canceladas  = reservasReales.filter(r => r.estado === 'cancelada');
+        const todas       = reservasReales.filter(r => r.estado !== 'pendiente');
         const totalPersonas = confirmadas.reduce((s, r) => s + (parseInt(r.personas) || 0), 0);
         const mediaPers = confirmadas.length ? (totalPersonas / confirmadas.length).toFixed(1) : '—';
         const pctCancel = todas.length ? Math.round(canceladas.length / todas.length * 100) : 0;
