@@ -1747,7 +1747,7 @@
         if (!file) return;
         const status = document.getElementById('p-imagen-status');
         status.textContent = 'Comprimiendo...';
-        const compressed = await comprimirImagen(file, 900, 0.82);
+        const compressed = await comprimirImagen(file, 900, 0.88);
         cartaImagenPendiente = compressed;
         const sizekb = Math.round(compressed.size / 1024);
         status.textContent = `Lista para subir (${sizekb}KB)`;
@@ -1777,8 +1777,8 @@
 
         let imagenUrl = document.getElementById('p-imagen-url').value || null;
         if (cartaImagenPendiente) {
-            const filename = `${id || crypto.randomUUID()}-${Date.now()}.jpg`;
-            const { error: upErr } = await supa.storage.from('carta').upload(filename, cartaImagenPendiente, { upsert: true, contentType: 'image/jpeg' });
+            const filename = `${id || crypto.randomUUID()}-${Date.now()}.${extensionImagen(cartaImagenPendiente)}`;
+            const { error: upErr } = await supa.storage.from('carta').upload(filename, cartaImagenPendiente, { upsert: true, contentType: cartaImagenPendiente.type || 'image/webp' });
             if (upErr) {
                 alert('Error al subir la imagen: ' + upErr.message);
                 btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> GUARDAR PLATO';
@@ -1978,7 +1978,14 @@
     // ── UPLOAD IMAGEN POPUP ──
     let popupImagenUrl = '';
 
-    function comprimirImagen(file, maxWidth = 1200, quality = 0.82) {
+    function extensionImagen(blob) {
+        return blob.type === 'image/svg+xml' ? 'svg' : 'webp';
+    }
+
+    // Los logos/iconos vectoriales (SVG) no se comprimen: son vectores, no tienen "calidad"
+    // que perder, y pasarlos por canvas los convertiría en una imagen de mapa de bits fija.
+    function comprimirImagen(file, maxWidth = 1200, quality = 0.88) {
+        if (file.type === 'image/svg+xml') return Promise.resolve(file);
         return new Promise((resolve) => {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -1989,7 +1996,7 @@
                     canvas.width  = Math.round(img.width  * scale);
                     canvas.height = Math.round(img.height * scale);
                     canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                    canvas.toBlob(resolve, 'image/jpeg', quality);
+                    canvas.toBlob(resolve, 'image/webp', quality);
                 };
                 img.src = e.target.result;
             };
@@ -2005,9 +2012,10 @@
         const compressed = await comprimirImagen(file);
         const sizekb = Math.round(compressed.size / 1024);
         label.textContent = 'Subiendo...';
-        const { error } = await supa.storage.from('popup').upload('popup-promo.jpg', compressed, { upsert: true, contentType: 'image/jpeg' });
+        const nombrePopup = `popup-promo.${extensionImagen(compressed)}`;
+        const { error } = await supa.storage.from('popup').upload(nombrePopup, compressed, { upsert: true, contentType: compressed.type || 'image/webp' });
         if (error) { label.textContent = 'Error al subir'; console.error(error); return; }
-        const { data: { publicUrl } } = supa.storage.from('popup').getPublicUrl('popup-promo.jpg');
+        const { data: { publicUrl } } = supa.storage.from('popup').getPublicUrl(nombrePopup);
         popupImagenUrl = publicUrl + '?t=' + Date.now();
         document.getElementById('popup-img-preview').innerHTML = `<img src="${popupImagenUrl}" style="width:100%;height:100%;object-fit:cover">`;
         label.textContent = `✓ Subida (${sizekb}KB)`;
@@ -2022,9 +2030,10 @@
         const compressed = await comprimirImagen(file);
         const sizekb = Math.round(compressed.size / 1024);
         label.textContent = 'Subiendo...';
-        const { error } = await supa.storage.from('popup').upload('popup-carta.jpg', compressed, { upsert: true, contentType: 'image/jpeg' });
+        const nombrePopupCarta = `popup-carta.${extensionImagen(compressed)}`;
+        const { error } = await supa.storage.from('popup').upload(nombrePopupCarta, compressed, { upsert: true, contentType: compressed.type || 'image/webp' });
         if (error) { label.textContent = 'Error al subir'; console.error(error); return; }
-        const { data: { publicUrl } } = supa.storage.from('popup').getPublicUrl('popup-carta.jpg');
+        const { data: { publicUrl } } = supa.storage.from('popup').getPublicUrl(nombrePopupCarta);
         popupCartaImagenUrl = publicUrl + '?t=' + Date.now();
         document.getElementById('popup-carta-img-preview').innerHTML = `<img src="${popupCartaImagenUrl}" style="width:100%;height:100%;object-fit:cover">`;
         label.textContent = `✓ Subida (${sizekb}KB)`;
