@@ -850,7 +850,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if (hambEl) {
             const grupos = agruparPorLinea(porCategoria['hamburguesas'] || []);
             hambEl.innerHTML = grupos.map(g => {
-                const hdr = g.linea ? `<div class="linea-hdr cat-hdr">
+                const hdr = g.linea ? `<div class="linea-hdr cat-hdr visible">
                     <div class="linea-hdr__icon"><i class="fa-solid fa-burger" style="color:var(--gold)"></i></div>
                     <div class="linea-hdr__name">${escHtml(g.linea)}</div>
                     <div class="linea-hdr__sub">${g.items.length} plato${g.items.length === 1 ? '' : 's'}</div>
@@ -876,7 +876,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         // quedan invisibles (opacity:0) para siempre.
         document.querySelectorAll('.bl-item, .product-card').forEach(el => blIO.observe(el));
         document.querySelectorAll('.salsa-card').forEach(el => salsaIO.observe(el));
-        document.querySelectorAll('.linea-hdr').forEach(el => hdrIO.observe(el));
     }
     cargarCarta();
 
