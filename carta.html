@@ -876,6 +876,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         // quedan invisibles (opacity:0) para siempre.
         document.querySelectorAll('.bl-item, .product-card').forEach(el => blIO.observe(el));
         document.querySelectorAll('.salsa-card').forEach(el => salsaIO.observe(el));
+        // Ahora sí, ya con las secciones a su altura real (ver nota junto a sectionIO).
+        sections.forEach(s => sectionIO.observe(s));
     }
     cargarCarta();
 
@@ -977,7 +979,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
         });
     }, { rootMargin: `-${OFFSET}px 0px -55% 0px`, threshold: 0 });
-    sections.forEach(s => sectionIO.observe(s));
+    // No se observa aquí todavía: las secciones están vacías hasta que cargarCarta()
+    // rellena los platos (llega por fetch async), así que sus alturas reales aún no
+    // existen — observarlas ahora podía marcar "Patatas" como pestaña activa al
+    // entrar, aunque en pantalla se siguiera viendo Tapas. Se observan al final de
+    // cargarCarta(), cuando las secciones ya tienen su altura definitiva.
 
     // ── ENTRANCE ANIMATIONS ──
     const hdrIO = new IntersectionObserver(entries => {
