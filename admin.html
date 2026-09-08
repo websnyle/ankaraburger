@@ -219,6 +219,26 @@
         .toggle input:checked + .toggle-slider { background: rgba(37,211,102,0.15); border-color: var(--color-confirm); }
         .toggle input:checked + .toggle-slider::before { background: var(--color-confirm); transform: translateX(22px); }
 
+        /* ── CARTA PANEL ── */
+        .carta-cats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+        .carta-cat-btn { background: var(--color-surface2); border: 1px solid rgba(200,168,75,0.2); color: var(--color-muted); font-family: var(--font-body); font-size: 0.78rem; font-weight: 600; padding: 7px 13px; border-radius: 20px; cursor: pointer; transition: all 0.2s; }
+        .carta-cat-btn.active { background: var(--color-primary); color: #000; border-color: var(--color-primary); }
+        .carta-linea-hdr { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted); margin: 18px 0 8px; }
+        .carta-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(200,168,75,0.08); }
+        .carta-item__img { width: 44px; height: 44px; border-radius: 6px; object-fit: cover; background: var(--color-surface2); flex-shrink: 0; }
+        .carta-item__img--placeholder { display: flex; align-items: center; justify-content: center; color: var(--color-muted); font-size: 1rem; }
+        .carta-item__info { flex: 1; min-width: 0; }
+        .carta-item__name { font-size: 0.88rem; font-weight: 600; }
+        .carta-item__name.agotado { color: var(--color-muted); text-decoration: line-through; }
+        .carta-item__price { font-size: 0.76rem; color: var(--color-muted); }
+        .carta-item__actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+        .carta-item__btn { background: none; border: none; color: var(--color-muted); font-size: 0.95rem; cursor: pointer; padding: 4px; }
+        .carta-item__btn:hover { color: var(--color-primary); }
+        .carta-item__btn.del:hover { color: #e05252; }
+        .btn-nuevo-plato { background: var(--color-primary); color: #000; font-family: var(--font-display); font-size: 0.82rem; letter-spacing: 0.08em; padding: 8px 14px; border: none; border-radius: 3px; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-bottom: 18px; }
+        .modal__img-preview { width: 100%; height: 140px; border-radius: 6px; object-fit: cover; background: var(--color-surface2); margin-bottom: 8px; display: none; }
+        .modal__img-preview.show { display: block; }
+
         .config-save { display: flex; align-items: center; gap: 8px; margin-top: 20px; }
         .btn-save { background: var(--color-primary); color: #000; font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.08em; padding: 13px 24px; border: none; border-radius: 3px; cursor: pointer; transition: background 0.2s; }
         .btn-save:hover { background: var(--color-accent); }
@@ -447,6 +467,9 @@
             <button class="btn-stats" id="btn-clientes" title="Clientes">
                 <i class="fa-solid fa-address-book"></i>
             </button>
+            <button class="btn-stats" id="btn-carta" title="Carta">
+                <i class="fa-solid fa-burger"></i>
+            </button>
             <button class="btn-config" id="btn-config">
                 <i class="fa-solid fa-sliders"></i>
             </button>
@@ -553,6 +576,25 @@
             </table>
             <div id="clientes-vacio" style="display:none;text-align:center;padding:30px;color:var(--color-muted);font-size:0.85rem">Todavía no hay clientes con teléfono registrado.</div>
         </div>
+    </div>
+
+    <!-- CARTA PANEL -->
+    <div class="stats-panel" id="carta-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+            <div class="config-section__title" style="margin-bottom:0;padding-bottom:0;border-bottom:none">Carta</div>
+        </div>
+        <button class="btn-nuevo-plato" id="btn-nuevo-plato"><i class="fa-solid fa-plus"></i> AÑADIR PLATO</button>
+        <div class="carta-cats" id="carta-cats">
+            <button class="carta-cat-btn active" data-cat="todas">Todas</button>
+            <button class="carta-cat-btn" data-cat="tapas">Tapas</button>
+            <button class="carta-cat-btn" data-cat="hamburguesas">Hamburguesas</button>
+            <button class="carta-cat-btn" data-cat="patatas">Patatas</button>
+            <button class="carta-cat-btn" data-cat="extras">Extras</button>
+            <button class="carta-cat-btn" data-cat="salsas">Salsas</button>
+            <button class="carta-cat-btn" data-cat="postres">Postres</button>
+        </div>
+        <div id="carta-lista"></div>
+        <div id="carta-vacio" style="display:none;text-align:center;padding:30px;color:var(--color-muted);font-size:0.85rem">No hay platos en esta categoría.</div>
     </div>
 
     <!-- CONFIG PANEL -->
@@ -739,13 +781,6 @@
             </div>
         </div>
 
-        <!-- AGOTADOS -->
-        <div class="config-section">
-            <div class="config-section__title">Hamburguesas agotadas</div>
-            <div class="config-row__sub" style="padding:0 0 12px">Marca las que están agotadas — aparecerán como no disponibles en la carta.</div>
-            <div id="agotados-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;"></div>
-        </div>
-
         <!-- FRANJAS BLOQUEADAS -->
         <div class="config-section">
             <div class="config-section__title">Franjas horarias bloqueadas</div>
@@ -841,6 +876,70 @@
         </div>
         <button class="modal__submit" id="modal-submit">
             <i class="fa-solid fa-calendar-plus"></i> GUARDAR RESERVA
+        </button>
+    </div>
+</div>
+
+<!-- MODAL PLATO -->
+<div class="modal-overlay" id="modal-plato-overlay">
+    <div class="modal">
+        <div class="modal__title">
+            <span id="modal-plato-titulo">NUEVO PLATO</span>
+            <button class="modal__close" id="modal-plato-close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <input type="hidden" id="p-id">
+        <input type="hidden" id="p-imagen-url">
+        <div class="modal__field">
+            <label>Categoría</label>
+            <select id="p-categoria">
+                <option value="tapas">Tapas</option>
+                <option value="hamburguesas">Hamburguesas</option>
+                <option value="patatas">Patatas</option>
+                <option value="extras">Extras</option>
+                <option value="salsas">Salsas</option>
+                <option value="postres">Postres</option>
+            </select>
+        </div>
+        <div class="modal__field" id="p-linea-wrap">
+            <label>Línea / Grupo <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--color-muted)">(opcional)</span></label>
+            <input type="text" id="p-linea" placeholder="Ej: LÍNEA ARGENTINA, A 0,80€...">
+        </div>
+        <div class="modal__field">
+            <label>Nombre</label>
+            <input type="text" id="p-nombre" placeholder="Nombre del plato">
+        </div>
+        <div class="modal__field">
+            <label>Precio (€)</label>
+            <input type="number" id="p-precio" step="0.10" min="0" placeholder="0.00">
+        </div>
+        <div class="modal__field" id="p-descripcion-wrap">
+            <label>Descripción <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--color-muted)">(opcional)</span></label>
+            <textarea id="p-descripcion" rows="2" placeholder="Ingredientes, elaboración..." style="background:var(--color-surface2);border:1px solid rgba(200,168,75,0.2);border-radius:3px;color:var(--color-text);font-family:var(--font-body);font-size:0.88rem;padding:10px 12px;width:100%;outline:none;resize:none"></textarea>
+        </div>
+        <div class="modal__field" id="p-badge-wrap">
+            <label>Etiqueta destacada <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--color-muted)">(opcional, ej: ★ BEST SELLER)</span></label>
+            <input type="text" id="p-badge" placeholder="★ BEST SELLER">
+        </div>
+        <div class="modal__field" id="p-imagen-wrap">
+            <label>Foto <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--color-muted)">(opcional)</span></label>
+            <img id="p-imagen-preview" class="modal__img-preview">
+            <input type="file" id="p-imagen-file" accept="image/*">
+            <div id="p-imagen-status" style="font-size:0.72rem;color:var(--color-muted);margin-top:4px"></div>
+        </div>
+        <div class="modal__field">
+            <div class="config-row" style="padding:4px 0">
+                <div>
+                    <div class="config-row__label">Disponible</div>
+                    <div class="config-row__sub">Desactívalo si se ha agotado, sin borrarlo</div>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" id="p-disponible" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+        <button class="modal__submit" id="modal-plato-submit">
+            <i class="fa-solid fa-floppy-disk"></i> GUARDAR PLATO
         </button>
     </div>
 </div>
@@ -1315,13 +1414,16 @@
         const panel = document.getElementById('stats-panel');
         const config = document.getElementById('config-panel');
         const clientes = document.getElementById('clientes-panel');
+        const carta = document.getElementById('carta-panel');
         const isOpen = panel.classList.toggle('open');
         document.getElementById('btn-stats').classList.toggle('active', isOpen);
         if (isOpen) {
             config.classList.remove('open');
             clientes.classList.remove('open');
+            carta.classList.remove('open');
             document.getElementById('btn-config').classList.remove('active');
             document.getElementById('btn-clientes').classList.remove('active');
+            document.getElementById('btn-carta').classList.remove('active');
             renderStats();
         }
         PANEL_HIDE.forEach(id => {
@@ -1370,13 +1472,16 @@
         const panel = document.getElementById('clientes-panel');
         const stats = document.getElementById('stats-panel');
         const config = document.getElementById('config-panel');
+        const carta = document.getElementById('carta-panel');
         const isOpen = panel.classList.toggle('open');
         document.getElementById('btn-clientes').classList.toggle('active', isOpen);
         if (isOpen) {
             stats.classList.remove('open');
             config.classList.remove('open');
+            carta.classList.remove('open');
             document.getElementById('btn-stats').classList.remove('active');
             document.getElementById('btn-config').classList.remove('active');
+            document.getElementById('btn-carta').classList.remove('active');
             renderClientes();
         }
         PANEL_HIDE.forEach(id => {
@@ -1404,6 +1509,205 @@
         a.download = `clientes-promos-ankara-${new Date().toISOString().split('T')[0]}.csv`;
         a.click();
         URL.revokeObjectURL(url);
+    });
+
+    // ── CARTA PANEL ──
+    const CARTA_CAT_LABEL = { tapas: 'Tapas', hamburguesas: 'Hamburguesas', patatas: 'Patatas', extras: 'Extras', salsas: 'Salsas', postres: 'Postres' };
+    const CARTA_CATS_SIN_DESC  = ['extras', 'salsas'];
+    const CARTA_CATS_SIN_BADGE = ['extras', 'salsas'];
+    const CARTA_CATS_SIN_IMG   = ['extras'];
+    let cartaItems = [];
+    let cartaFiltroCat = 'todas';
+    let cartaImagenPendiente = null; // blob comprimido a subir al guardar
+
+    async function cargarCartaItems() {
+        const { data, error } = await supa.from('carta_items').select('*').order('orden', { ascending: true });
+        cartaItems = error ? [] : (data || []);
+    }
+
+    function renderCartaAdmin() {
+        const cont = document.getElementById('carta-lista');
+        const items = cartaFiltroCat === 'todas' ? cartaItems : cartaItems.filter(it => it.categoria === cartaFiltroCat);
+        document.getElementById('carta-vacio').style.display = items.length ? 'none' : 'block';
+        let html = '';
+        let lineaActual = Symbol();
+        items.forEach(it => {
+            if (it.linea !== lineaActual) {
+                lineaActual = it.linea;
+                if (it.linea) html += `<div class="carta-linea-hdr">${escHtmlAdmin(it.linea)}</div>`;
+            }
+            const img = it.imagen_url
+                ? `<img class="carta-item__img" src="${escHtmlAdmin(it.imagen_url)}" loading="lazy">`
+                : `<div class="carta-item__img carta-item__img--placeholder"><i class="fa-solid fa-image"></i></div>`;
+            html += `<div class="carta-item" data-id="${it.id}">
+                ${img}
+                <div class="carta-item__info">
+                    <div class="carta-item__name ${it.disponible ? '' : 'agotado'}">${escHtmlAdmin(it.nombre)}</div>
+                    <div class="carta-item__price">${Number(it.precio).toFixed(2)}€ · ${CARTA_CAT_LABEL[it.categoria] || it.categoria}</div>
+                </div>
+                <div class="carta-item__actions">
+                    <label class="toggle" title="Disponible">
+                        <input type="checkbox" ${it.disponible ? 'checked' : ''} onchange="toggleCartaDisponible('${it.id}', this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <button class="carta-item__btn" title="Editar" onclick="abrirModalPlato('${it.id}')"><i class="fa-solid fa-pen"></i></button>
+                    <button class="carta-item__btn del" title="Borrar" onclick="borrarPlato('${it.id}')"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </div>`;
+        });
+        cont.innerHTML = html;
+    }
+
+    function escHtmlAdmin(s) {
+        return String(s ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+
+    async function toggleCartaDisponible(id, disponible) {
+        await supa.from('carta_items').update({ disponible }).eq('id', id);
+        const it = cartaItems.find(i => i.id === id);
+        if (it) it.disponible = disponible;
+        renderCartaAdmin();
+    }
+
+    document.getElementById('btn-carta').addEventListener('click', async () => {
+        const panel = document.getElementById('carta-panel');
+        const stats = document.getElementById('stats-panel');
+        const clientes = document.getElementById('clientes-panel');
+        const config = document.getElementById('config-panel');
+        const isOpen = panel.classList.toggle('open');
+        document.getElementById('btn-carta').classList.toggle('active', isOpen);
+        if (isOpen) {
+            stats.classList.remove('open');
+            clientes.classList.remove('open');
+            config.classList.remove('open');
+            document.getElementById('btn-stats').classList.remove('active');
+            document.getElementById('btn-clientes').classList.remove('active');
+            document.getElementById('btn-config').classList.remove('active');
+            await cargarCartaItems();
+            renderCartaAdmin();
+        }
+        PANEL_HIDE.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = isOpen ? 'none' : '';
+        });
+        if (!isOpen) renderBannerPendientes();
+    });
+
+    document.querySelectorAll('.carta-cat-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.carta-cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            cartaFiltroCat = btn.dataset.cat;
+            renderCartaAdmin();
+        });
+    });
+
+    // ── MODAL PLATO ──
+    function actualizarCamposModalPlato() {
+        const cat = document.getElementById('p-categoria').value;
+        document.getElementById('p-linea-wrap').style.display = 'flex';
+        document.getElementById('p-descripcion-wrap').style.display = CARTA_CATS_SIN_DESC.includes(cat) ? 'none' : 'flex';
+        document.getElementById('p-badge-wrap').style.display = CARTA_CATS_SIN_BADGE.includes(cat) ? 'none' : 'flex';
+        document.getElementById('p-imagen-wrap').style.display = CARTA_CATS_SIN_IMG.includes(cat) ? 'none' : 'flex';
+    }
+    document.getElementById('p-categoria').addEventListener('change', actualizarCamposModalPlato);
+
+    function abrirModalPlato(id) {
+        cartaImagenPendiente = null;
+        document.getElementById('p-imagen-file').value = '';
+        document.getElementById('p-imagen-status').textContent = '';
+        const it = id ? cartaItems.find(i => i.id === id) : null;
+        document.getElementById('modal-plato-titulo').textContent = it ? 'EDITAR PLATO' : 'NUEVO PLATO';
+        document.getElementById('p-id').value = it ? it.id : '';
+        document.getElementById('p-imagen-url').value = it ? (it.imagen_url || '') : '';
+        document.getElementById('p-categoria').value = it ? it.categoria : (cartaFiltroCat !== 'todas' ? cartaFiltroCat : 'tapas');
+        document.getElementById('p-linea').value = it ? (it.linea || '') : '';
+        document.getElementById('p-nombre').value = it ? it.nombre : '';
+        document.getElementById('p-precio').value = it ? it.precio : '';
+        document.getElementById('p-descripcion').value = it ? (it.descripcion || '') : '';
+        document.getElementById('p-badge').value = it ? (it.badge || '') : '';
+        document.getElementById('p-disponible').checked = it ? it.disponible : true;
+        const preview = document.getElementById('p-imagen-preview');
+        if (it && it.imagen_url) { preview.src = it.imagen_url; preview.classList.add('show'); }
+        else { preview.classList.remove('show'); preview.src = ''; }
+        actualizarCamposModalPlato();
+        document.getElementById('modal-plato-overlay').classList.add('open');
+    }
+
+    function cerrarModalPlato() {
+        document.getElementById('modal-plato-overlay').classList.remove('open');
+    }
+    document.getElementById('modal-plato-close').addEventListener('click', cerrarModalPlato);
+    document.getElementById('btn-nuevo-plato').addEventListener('click', () => abrirModalPlato(null));
+
+    document.getElementById('p-imagen-file').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const status = document.getElementById('p-imagen-status');
+        status.textContent = 'Comprimiendo...';
+        const compressed = await comprimirImagen(file, 900, 0.82);
+        cartaImagenPendiente = compressed;
+        const sizekb = Math.round(compressed.size / 1024);
+        status.textContent = `Lista para subir (${sizekb}KB)`;
+        const preview = document.getElementById('p-imagen-preview');
+        preview.src = URL.createObjectURL(compressed);
+        preview.classList.add('show');
+    });
+
+    async function borrarPlato(id) {
+        const it = cartaItems.find(i => i.id === id);
+        if (!it) return;
+        if (!confirm(`¿Borrar "${it.nombre}" de la carta? Esta acción no se puede deshacer.`)) return;
+        await supa.from('carta_items').delete().eq('id', id);
+        await cargarCartaItems();
+        renderCartaAdmin();
+    }
+
+    document.getElementById('modal-plato-submit').addEventListener('click', async () => {
+        const id = document.getElementById('p-id').value;
+        const categoria = document.getElementById('p-categoria').value;
+        const nombre = document.getElementById('p-nombre').value.trim();
+        const precio = parseFloat(document.getElementById('p-precio').value);
+        if (!nombre || isNaN(precio)) { alert('Completa al menos el nombre y el precio.'); return; }
+
+        const btn = document.getElementById('modal-plato-submit');
+        btn.disabled = true; btn.textContent = 'Guardando...';
+
+        let imagenUrl = document.getElementById('p-imagen-url').value || null;
+        if (cartaImagenPendiente) {
+            const filename = `${id || crypto.randomUUID()}-${Date.now()}.jpg`;
+            const { error: upErr } = await supa.storage.from('carta').upload(filename, cartaImagenPendiente, { upsert: true, contentType: 'image/jpeg' });
+            if (upErr) {
+                alert('Error al subir la imagen: ' + upErr.message);
+                btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> GUARDAR PLATO';
+                return;
+            }
+            const { data: { publicUrl } } = supa.storage.from('carta').getPublicUrl(filename);
+            imagenUrl = publicUrl;
+        }
+
+        const payload = {
+            categoria,
+            linea: document.getElementById('p-linea').value.trim() || null,
+            nombre,
+            precio,
+            descripcion: document.getElementById('p-descripcion').value.trim() || null,
+            badge: document.getElementById('p-badge').value.trim() || null,
+            imagen_url: imagenUrl,
+            disponible: document.getElementById('p-disponible').checked
+        };
+
+        if (id) {
+            await supa.from('carta_items').update(payload).eq('id', id);
+        } else {
+            const maxOrden = cartaItems.reduce((m, it) => Math.max(m, it.orden || 0), 0);
+            await supa.from('carta_items').insert([{ ...payload, orden: maxOrden + 1 }]);
+        }
+
+        btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> GUARDAR PLATO';
+        cerrarModalPlato();
+        await cargarCartaItems();
+        renderCartaAdmin();
     });
 
     // Periodo stats
@@ -1465,39 +1769,6 @@
     });
 
     // ── CONFIGURACIÓN ──
-    let BURGERS_LIST = [];
-
-    async function cargarBurgersList() {
-        try {
-            const res = await fetch('carta.html');
-            const html = await res.text();
-            const doc = new DOMParser().parseFromString(html, 'text/html');
-            const sec = doc.getElementById('hamburguesas');
-            BURGERS_LIST = sec
-                ? Array.from(sec.querySelectorAll('.bl-item__name')).map(el => el.textContent.trim())
-                : [];
-        } catch(e) {
-            BURGERS_LIST = [];
-        }
-    }
-
-    function renderAgotados(agotados) {
-        const grid = document.getElementById('agotados-grid');
-        grid.innerHTML = BURGERS_LIST.map(name => {
-            const isAgotado = agotados.includes(name);
-            return `<div style="display:flex;align-items:center;justify-content:space-between;background:var(--color-surface2);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px 14px;gap:10px;">
-                <span style="font-size:0.82rem;font-weight:500;">${name}</span>
-                <button onclick="toggleAgotado(this)" data-burger="${name}" data-agotado="${isAgotado ? '1' : '0'}"
-                    style="flex-shrink:0;border:none;border-radius:20px;padding:5px 14px;font-size:0.72rem;font-weight:700;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s;
-                    background:${isAgotado ? 'rgba(220,50,50,0.15)' : 'rgba(50,200,100,0.15)'};
-                    color:${isAgotado ? '#e05555' : '#4cba6e'};
-                    border:1px solid ${isAgotado ? 'rgba(220,50,50,0.4)' : 'rgba(50,200,100,0.3)'};">
-                    ${isAgotado ? 'AGOTADA' : 'DISPONIBLE'}
-                </button>
-            </div>`;
-        }).join('');
-    }
-
     function renderFranjas(bloqueadas) {
         const bMed = bloqueadas.mediodia || [];
         const bNoc = bloqueadas.noche || [];
@@ -1525,19 +1796,10 @@
         btn.style.borderColor = isBlocked ? 'rgba(50,200,100,0.3)' : 'rgba(220,50,50,0.4)';
     }
 
-    function toggleAgotado(btn) {
-        const isAgotado = btn.dataset.agotado === '1';
-        btn.dataset.agotado = isAgotado ? '0' : '1';
-        btn.textContent = isAgotado ? 'DISPONIBLE' : 'AGOTADA';
-        btn.style.background = isAgotado ? 'rgba(50,200,100,0.15)' : 'rgba(220,50,50,0.15)';
-        btn.style.color = isAgotado ? '#4cba6e' : '#e05555';
-        btn.style.borderColor = isAgotado ? 'rgba(50,200,100,0.3)' : 'rgba(220,50,50,0.4)';
-    }
-
     const BOOL_KEYS = ['reservas_activas', 'mediodia_activo', 'noche_activo', 'popup_activo', 'popup_carta_activo'];
     const TEXT_KEYS = ['popup_texto', 'popup_titulo', 'popup_cta_texto', 'popup_cta_url', 'popup_imagen_url',
                        'popup_carta_texto', 'popup_carta_titulo', 'popup_carta_cta_texto', 'popup_carta_cta_url', 'popup_carta_imagen_url',
-                       'agotados', 'franjas_bloqueadas'];
+                       'franjas_bloqueadas'];
     const SLOTS_MEDIODIA = ['12:30','13:00','13:30','14:00','14:30','15:00'];
     const SLOTS_NOCHE    = ['19:30','20:00','20:30','21:00','21:30','22:00','22:30'];
     let cfg = { aforo_salon: 24, aforo_terraza: 16, buffer_walkins_pct: 30, tiempo_turno_min: 60, reservas_activas: true, mediodia_activo: true, noche_activo: true, popup_activo: false, popup_texto: '' };
@@ -1550,8 +1812,6 @@
             else if (TEXT_KEYS.includes(r.clave)) cfg[r.clave] = r.valor;
             else cfg[r.clave] = Number(r.valor);
         });
-        await cargarBurgersList();
-        renderAgotados(JSON.parse(cfg.agotados || '[]'));
         renderFranjas(JSON.parse(cfg.franjas_bloqueadas || '{"mediodia":[],"noche":[]}'));
         document.getElementById('cfg-reservas-activas').checked = cfg.reservas_activas;
         document.getElementById('cfg-aforo-salon').value  = cfg.aforo_salon;
@@ -1709,9 +1969,6 @@
                 ];
             })(),
             { clave: 'popup_carta_imagen_url', valor: popupCartaImagenUrl || cfg.popup_carta_imagen_url || '' },
-            { clave: 'agotados', valor: JSON.stringify(
-                Array.from(document.querySelectorAll('#agotados-grid button[data-agotado="1"]')).map(btn => btn.dataset.burger)
-            )},
             { clave: 'franjas_bloqueadas', valor: JSON.stringify({
                 mediodia: Array.from(document.querySelectorAll('#franjas-mediodia button[data-blocked="1"]')).map(b => b.dataset.hora),
                 noche:    Array.from(document.querySelectorAll('#franjas-noche button[data-blocked="1"]')).map(b => b.dataset.hora)
@@ -1729,13 +1986,16 @@
         const panel = document.getElementById('config-panel');
         const stats = document.getElementById('stats-panel');
         const clientes = document.getElementById('clientes-panel');
+        const carta = document.getElementById('carta-panel');
         const isOpen = panel.classList.toggle('open');
         document.getElementById('btn-config').classList.toggle('active', isOpen);
         if (isOpen) {
             stats.classList.remove('open');
             clientes.classList.remove('open');
+            carta.classList.remove('open');
             document.getElementById('btn-stats').classList.remove('active');
             document.getElementById('btn-clientes').classList.remove('active');
+            document.getElementById('btn-carta').classList.remove('active');
         }
         PANEL_HIDE.forEach(id => {
             const el = document.getElementById(id);
