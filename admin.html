@@ -1065,8 +1065,10 @@
 
     // ── BANNER PENDIENTES ──
     function renderBannerPendientes() {
-        const hoy = new Date().toISOString().split('T')[0];
-        const pendientes = reservas.filter(r => r.estado === 'pendiente' && r.fecha >= hoy);
+        // Sin filtro de fecha a propósito: una reserva pendiente sigue sin resolver
+        // aunque sea de un día pasado, y antes se quedaba invisible (solo contaba
+        // en el número de arriba, sin forma de encontrarla ni confirmarla/cancelarla).
+        const pendientes = reservas.filter(r => r.estado === 'pendiente').sort((a, b) => a.fecha.localeCompare(b.fecha) || a.hora.localeCompare(b.hora));
         const banner = document.getElementById('pendientes-banner');
         if (!pendientes.length) { banner.classList.remove('visible'); return; }
         banner.classList.add('visible');
