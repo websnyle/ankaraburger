@@ -2,7 +2,11 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>Panel de Reservas · Ankara Burger</title>
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" href="favicon.ico">
@@ -26,8 +30,44 @@
             --font-display:  'Bebas Neue', sans-serif;
             --font-body:     'Inter', sans-serif;
         }
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        html, body { overscroll-behavior-y: contain; }
         body { background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); min-height: 100vh; }
+        button { touch-action: manipulation; }
+
+        /* ── TAB BAR (navegación inferior estilo app) ── */
+        .tabbar {
+            position: fixed; left: 0; right: 0; bottom: 0; z-index: 200;
+            display: flex; background: var(--color-surface);
+            border-top: 1px solid rgba(200,168,75,0.15);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .tabbar__item {
+            flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+            padding: 9px 4px 8px; background: none; border: none; color: var(--color-muted);
+            font-family: var(--font-body); font-size: 0.6rem; font-weight: 600; letter-spacing: 0.01em;
+            cursor: pointer; transition: color 0.15s; -webkit-user-select: none; user-select: none;
+        }
+        .tabbar__item i { font-size: 1.2rem; transition: transform 0.15s; }
+        .tabbar__item.active { color: var(--color-primary); }
+        .tabbar__item:active i { transform: scale(0.88); }
+
+        /* ── FAB nueva reserva ── */
+        .fab-nueva {
+            position: fixed; right: 18px; z-index: 201;
+            bottom: calc(78px + env(safe-area-inset-bottom));
+            width: 56px; height: 56px; border-radius: 50%;
+            background: var(--color-primary); color: #000;
+            border: none; font-size: 1.35rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 20px rgba(200,168,75,0.35);
+            transition: background 0.2s, transform 0.15s;
+        }
+        .fab-nueva:hover { background: var(--color-accent); }
+        .fab-nueva:active { transform: scale(0.92); }
+
+        .logout-row { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 14px; background: none; border: 1px solid rgba(229,62,62,0.25); color: var(--color-cancel); font-family: var(--font-body); font-size: 0.85rem; font-weight: 600; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+        .logout-row:hover { background: rgba(229,62,62,0.08); }
 
         /* ── LOGIN ── */
         .login {
@@ -67,7 +107,7 @@
         .header {
             background: var(--color-surface);
             border-bottom: 1px solid rgba(200,168,75,0.15);
-            padding: 14px 20px;
+            padding: calc(14px + env(safe-area-inset-top)) 20px 14px;
             display: flex; align-items: center; justify-content: space-between;
             position: sticky; top: 0; z-index: 10;
         }
@@ -75,8 +115,6 @@
         .header__logo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(200,168,75,0.3); }
         .header__title { font-family: var(--font-display); font-size: 1.2rem; color: var(--color-primary); letter-spacing: 0.08em; }
         .header__sub { font-size: 0.7rem; color: var(--color-muted); }
-        .header__logout { background: none; border: 1px solid rgba(200,168,75,0.2); color: var(--color-muted); font-family: var(--font-body); font-size: 0.78rem; padding: 7px 14px; border-radius: 3px; cursor: pointer; transition: all 0.2s; }
-        .header__logout:hover { border-color: var(--color-cancel); color: var(--color-cancel); }
 
         /* ── STATS ── */
         .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(200,168,75,0.1); border-bottom: 1px solid rgba(200,168,75,0.1); }
@@ -98,7 +136,7 @@
         .filter-btn.active { background: var(--color-primary); color: #000; border-color: var(--color-primary); }
 
         /* ── LISTA ── */
-        .lista { padding: 12px 16px 100px; display: flex; flex-direction: column; gap: 10px; }
+        .lista { padding: 12px 16px calc(100px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 10px; }
         .empty { text-align: center; padding: 60px 20px; color: var(--color-muted); font-size: 0.9rem; }
         .empty i { font-size: 2.5rem; margin-bottom: 12px; display: block; opacity: 0.3; }
 
@@ -192,14 +230,8 @@
         }
         .modal__submit:hover { background: var(--color-accent); }
 
-        /* ── BTN NUEVA RESERVA ── */
-        .btn-nueva { background: var(--color-primary); color: #000; font-family: var(--font-display); font-size: 0.82rem; letter-spacing: 0.08em; padding: 8px 14px; border: none; border-radius: 3px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.2s; }
-        .btn-nueva:hover { background: var(--color-accent); }
-        .btn-config { background: none; border: 1px solid rgba(200,168,75,0.25); color: var(--color-muted); font-family: var(--font-body); font-size: 0.78rem; padding: 8px 12px; border-radius: 3px; cursor: pointer; transition: all 0.2s; }
-        .btn-config:hover, .btn-config.active { border-color: var(--color-primary); color: var(--color-primary); }
-
         /* ── CONFIG PANEL ── */
-        .config-panel { display: none; padding: 20px 16px 80px; }
+        .config-panel { display: none; padding: 20px 16px calc(100px + env(safe-area-inset-bottom)); }
         .config-panel.open { display: block; }
         .config-section { margin-bottom: 28px; }
         .config-section__title { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-primary); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid rgba(200,168,75,0.12); }
@@ -318,7 +350,7 @@
         .btn-cancel-small:hover { background: rgba(229,62,62,0.2); }
 
         /* ── STATS PANEL ── */
-        .stats-panel { display: none; padding: 20px 16px 80px; }
+        .stats-panel { display: none; padding: 20px 16px calc(100px + env(safe-area-inset-bottom)); }
         .stats-panel.open { display: block; }
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
         .stat-card {
@@ -390,8 +422,9 @@
 
         /* ── REFRESH ── */
         .fab-refresh {
-            position: fixed; bottom: 24px; right: 20px;
-            width: 50px; height: 50px; border-radius: 50%;
+            position: fixed; left: 18px; z-index: 201;
+            bottom: calc(78px + env(safe-area-inset-bottom));
+            width: 46px; height: 46px; border-radius: 50%;
             background: var(--color-primary); color: #000;
             border: none; font-size: 1.1rem; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
@@ -405,11 +438,7 @@
         /* ── MOBILE ONLY ── */
         @media (max-width: 599px) {
             /* Header compacto */
-            .header { padding: 10px 14px; gap: 6px; }
-            .header__logout .logout-text { display: none; }
-            .header__logout { padding: 8px 10px; }
-            .btn-nueva { padding: 8px 10px; font-size: 0.78rem; }
-            .btn-stats, .btn-config { padding: 8px 10px; }
+            .header { padding: calc(10px + env(safe-area-inset-top)) 14px 10px; }
 
             /* Stats 3 col más compacto */
             .stat { padding: 14px 10px; }
@@ -462,26 +491,6 @@
                 <div class="header__sub">Ankara Burger · Panel de gestión</div>
             </div>
         </div>
-        <div style="display:flex;gap:8px;align-items:center">
-            <button class="btn-nueva" id="btn-nueva">
-                <i class="fa-solid fa-plus"></i> RESERVA
-            </button>
-            <button class="btn-stats" id="btn-stats" title="Estadísticas">
-                <i class="fa-solid fa-chart-simple"></i>
-            </button>
-            <button class="btn-stats" id="btn-clientes" title="Clientes">
-                <i class="fa-solid fa-address-book"></i>
-            </button>
-            <button class="btn-stats" id="btn-carta" title="Carta">
-                <i class="fa-solid fa-burger"></i>
-            </button>
-            <button class="btn-config" id="btn-config">
-                <i class="fa-solid fa-sliders"></i>
-            </button>
-            <button class="header__logout" id="logout-btn">
-                <i class="fa-solid fa-right-from-bracket"></i> <span class="logout-text">Salir</span>
-            </button>
-        </div>
     </header>
 
     <!-- Banner pendientes -->
@@ -494,7 +503,7 @@
     </div>
 
     <!-- Filtro fecha -->
-    <div class="fecha-nav">
+    <div class="fecha-nav" id="fecha-nav">
         <button class="btn-dia" id="btn-prev-dia" title="Día anterior"><i class="fa-solid fa-chevron-left"></i></button>
         <input type="date" id="filtro-fecha">
         <button class="btn-dia" id="btn-next-dia" title="Día siguiente"><i class="fa-solid fa-chevron-right"></i></button>
@@ -520,7 +529,7 @@
         </div>
     </div>
 
-    <div class="filters">
+    <div class="filters" id="filters">
         <button class="filter-btn active" data-filter="todas">Todas</button>
         <button class="filter-btn" data-filter="pendiente">Pendientes</button>
         <button class="filter-btn" data-filter="confirmada">Confirmadas</button>
@@ -802,10 +811,37 @@
             </button>
             <span class="save-msg" id="save-msg">✓ Guardado correctamente</span>
         </div>
+
+        <div class="config-section" style="margin-top:36px">
+            <button class="logout-row" id="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i> CERRAR SESIÓN
+            </button>
+        </div>
     </div>
+
+    <nav class="tabbar">
+        <button class="tabbar__item active" id="tab-reservas">
+            <i class="fa-solid fa-calendar-days"></i><span>Reservas</span>
+        </button>
+        <button class="tabbar__item" id="btn-carta">
+            <i class="fa-solid fa-burger"></i><span>Carta</span>
+        </button>
+        <button class="tabbar__item" id="btn-stats">
+            <i class="fa-solid fa-chart-simple"></i><span>Stats</span>
+        </button>
+        <button class="tabbar__item" id="btn-clientes">
+            <i class="fa-solid fa-address-book"></i><span>Clientes</span>
+        </button>
+        <button class="tabbar__item" id="btn-config">
+            <i class="fa-solid fa-sliders"></i><span>Ajustes</span>
+        </button>
+    </nav>
 
     <button class="fab-refresh" id="fab-refresh" title="Actualizar">
         <i class="fa-solid fa-rotate-right"></i>
+    </button>
+    <button class="fab-nueva" id="btn-nueva" title="Nueva reserva">
+        <i class="fa-solid fa-plus"></i>
     </button>
 
 </div>
@@ -1417,8 +1453,24 @@
         });
     });
 
+    // ── TAB RESERVAS (cierra cualquier panel abierto y vuelve a la lista) ──
+    document.getElementById('tab-reservas').addEventListener('click', () => {
+        ['stats-panel', 'clientes-panel', 'carta-panel', 'config-panel'].forEach(id => {
+            document.getElementById(id).classList.remove('open');
+        });
+        ['btn-stats', 'btn-clientes', 'btn-carta', 'btn-config'].forEach(id => {
+            document.getElementById(id).classList.remove('active');
+        });
+        document.getElementById('tab-reservas').classList.add('active');
+        PANEL_HIDE.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = '';
+        });
+        renderBannerPendientes();
+    });
+
     // ── STATS PANEL ──
-    const PANEL_HIDE = ['capacidad-hoy','stats','filters','lista','fecha-nav','pendientes-banner'];
+    const PANEL_HIDE = ['capacidad-hoy','stats','filters','lista','fecha-nav','pendientes-banner','btn-nueva','fab-refresh'];
     document.getElementById('btn-stats').addEventListener('click', () => {
         const panel = document.getElementById('stats-panel');
         const config = document.getElementById('config-panel');
@@ -1426,6 +1478,7 @@
         const carta = document.getElementById('carta-panel');
         const isOpen = panel.classList.toggle('open');
         document.getElementById('btn-stats').classList.toggle('active', isOpen);
+        document.getElementById('tab-reservas').classList.toggle('active', !isOpen);
         if (isOpen) {
             config.classList.remove('open');
             clientes.classList.remove('open');
@@ -1484,6 +1537,7 @@
         const carta = document.getElementById('carta-panel');
         const isOpen = panel.classList.toggle('open');
         document.getElementById('btn-clientes').classList.toggle('active', isOpen);
+        document.getElementById('tab-reservas').classList.toggle('active', !isOpen);
         if (isOpen) {
             stats.classList.remove('open');
             config.classList.remove('open');
@@ -1657,6 +1711,7 @@
         const config = document.getElementById('config-panel');
         const isOpen = panel.classList.toggle('open');
         document.getElementById('btn-carta').classList.toggle('active', isOpen);
+        document.getElementById('tab-reservas').classList.toggle('active', !isOpen);
         if (isOpen) {
             stats.classList.remove('open');
             clientes.classList.remove('open');
@@ -2104,6 +2159,7 @@
         const carta = document.getElementById('carta-panel');
         const isOpen = panel.classList.toggle('open');
         document.getElementById('btn-config').classList.toggle('active', isOpen);
+        document.getElementById('tab-reservas').classList.toggle('active', !isOpen);
         if (isOpen) {
             stats.classList.remove('open');
             clientes.classList.remove('open');
