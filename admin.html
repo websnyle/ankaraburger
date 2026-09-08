@@ -51,6 +51,9 @@
         .tabbar__item i { font-size: 1.2rem; transition: transform 0.15s; }
         .tabbar__item.active { color: var(--color-primary); }
         .tabbar__item:active i { transform: scale(0.88); }
+        @media (min-width: 700px) {
+            .tabbar { left: 50%; right: auto; width: 100%; max-width: 480px; transform: translateX(-50%); border-radius: 16px 16px 0 0; border-left: 1px solid rgba(200,168,75,0.15); border-right: 1px solid rgba(200,168,75,0.15); box-shadow: 0 -6px 24px rgba(0,0,0,0.35); }
+        }
 
         /* ── FAB nueva reserva ── */
         .fab-nueva {
@@ -457,7 +460,7 @@
             .lista { display: grid; grid-template-columns: 1fr 1fr; }
         }
         @media (min-width: 1024px) {
-            .lista { grid-template-columns: repeat(3, 1fr); padding: 16px 24px 80px; }
+            .lista { grid-template-columns: repeat(3, 1fr); padding: 16px 24px calc(100px + env(safe-area-inset-bottom)); }
             .stats { grid-template-columns: repeat(3, 200px); justify-content: start; gap: 12px; background: none; padding: 16px 24px 0; border-bottom: none; }
             .stat { border: 1px solid rgba(200,168,75,0.12); border-radius: 6px; }
             .filters { padding: 12px 24px 0; }
