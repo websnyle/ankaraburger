@@ -123,7 +123,7 @@
             padding: 28px 16px 4px;
             display: flex; align-items: center; gap: 12px;
             opacity: 0; transform: translateX(-10px);
-            transition: opacity .4s ease, transform .4s ease;
+            transition: opacity .2s ease, transform .2s ease;
         }
         .cat-hdr.visible { opacity: 1; transform: translateX(0); }
         .cat-hdr__icon {
@@ -239,7 +239,7 @@
             cursor: pointer;
             min-height: 130px;
             opacity: 0; transform: translateY(16px);
-            transition: opacity .4s ease, transform .4s ease, border-color .25s, box-shadow .25s;
+            transition: opacity .2s ease, transform .2s ease, border-color .25s, box-shadow .25s;
         }
         .bl-item.visible { opacity: 1; transform: translateY(0); }
         .bl-item:hover {
@@ -429,7 +429,7 @@
             text-align: center;
             cursor: default;
             opacity: 0; transform: translateY(8px);
-            transition: opacity .35s ease, transform .35s ease, border-color .25s;
+            transition: opacity .2s ease, transform .2s ease, border-color .25s;
         }
         .salsa-card.visible { opacity: 1; transform: translateY(0); }
         .salsa-card:hover { border-color: rgba(200,168,75,0.3); }
@@ -996,7 +996,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             if (e.isIntersecting) {
                 const siblings = Array.from(e.target.parentElement.querySelectorAll('.bl-item, .product-card'));
                 const idx = siblings.indexOf(e.target);
-                setTimeout(() => e.target.classList.add('visible'), idx * 60);
+                setTimeout(() => e.target.classList.add('visible'), idx * 25);
                 blIO.unobserve(e.target);
             }
         });
@@ -1009,7 +1009,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             if (e.isIntersecting) {
                 const siblings = Array.from(e.target.parentElement.querySelectorAll('.salsa-card'));
                 const idx = siblings.indexOf(e.target);
-                setTimeout(() => e.target.classList.add('visible'), idx * 40);
+                setTimeout(() => e.target.classList.add('visible'), idx * 20);
                 salsaIO.unobserve(e.target);
             }
         });
