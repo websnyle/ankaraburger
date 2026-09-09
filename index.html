@@ -1,6 +1,27 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Auto-actualización: si esta pestaña se quedó abierta/congelada con una versión
+         vieja de la página (típico en móvil, al dejarla en segundo plano), se recarga
+         sola en cuanto detecta que hay una versión más nueva — sin que nadie tenga que
+         hacer nada. Comprueba sobre todo al "despertar" la pestaña (pageshow/visibilitychange),
+         que es el momento real en que esto pasa. -->
+    <script>
+    (function() {
+        var BUILD = '1788941968';
+        function comprobarVersion() {
+            fetch('/version.txt?t=' + Date.now(), { cache: 'no-store' })
+                .then(function(r) { return r.text(); })
+                .then(function(v) { if (v.trim() && v.trim() !== BUILD) location.reload(); })
+                .catch(function() {});
+        }
+        window.addEventListener('pageshow', function(e) { if (e.persisted) comprobarVersion(); });
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') comprobarVersion();
+        });
+        setInterval(comprobarVersion, 60000);
+    })();
+    </script>
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -1121,7 +1142,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <span id="hero-w1">ANKARA</span><span id="hero-w2">BURGER</span>
         </h1>
         <p class="hero__claim reveal reveal-d2">EL SABOR NO SE MANCHA</p>
-        <p class="hero__sub reveal reveal-d3">Hamburguesería argentina en Castelldefels. Smash burgers artesanales con ADN argentino. Carne, fuego y sabor en cada bocado.</p>
+        <h2 class="hero__sub reveal reveal-d3">Hamburguesería argentina en Castelldefels. Smash burgers artesanales con ADN argentino. Carne, fuego y sabor en cada bocado.</h2>
         <div class="hero__btns reveal reveal-d4">
             <a href="https://ankaraburger.last.shop/es/" target="_blank" rel="noopener" class="btn btn--gold">
                 <i class="fa-solid fa-bag-shopping"></i>
