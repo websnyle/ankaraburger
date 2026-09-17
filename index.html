@@ -496,41 +496,6 @@
         .feature__name { font-family: var(--font-display); font-size: 1.05rem; letter-spacing: 0.06em; margin-bottom: 3px; }
         .feature__desc { font-size: 0.85rem; color: var(--color-muted); line-height: 1.55; }
 
-        /* ─── FOOD GALLERY ─── */
-        .food-gallery__intro { margin-bottom: 28px; }
-        .food-gallery__scroll {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            scrollbar-width: none;
-            padding-bottom: 4px;
-            margin: 0 -24px;
-            padding: 0 24px 4px;
-            scroll-snap-type: x mandatory;
-        }
-        .food-gallery__scroll::-webkit-scrollbar { display: none; }
-        .food-gallery__card {
-            flex: 0 0 180px;
-            scroll-snap-align: start;
-            border-radius: 3px;
-            overflow: hidden;
-            border: 1px solid rgba(200,168,75,0.12);
-        }
-        .food-gallery__card img {
-            width: 100%;
-            aspect-ratio: 3/4;
-            object-fit: cover;
-            object-position: center 60%;
-            display: block;
-        }
-        .food-gallery__hint {
-            margin-top: 14px;
-            font-size: 0.72rem;
-            color: var(--color-muted);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
 
         /* ─── CARTA ─── */
         .carta__linea { margin-bottom: 40px; }
@@ -989,24 +954,6 @@
             to   { background-position: 0% center; }
         }
 
-        /* Food gallery 3D tilt — setup */
-        .food-gallery__card {
-            transform-style: preserve-3d;
-            will-change: transform;
-        }
-        .food-gallery__card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 3px;
-            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.18), transparent 65%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            z-index: 2;
-        }
-        .food-gallery__card:hover::after { opacity: 1; }
-
         /* Magnetic button glow */
         .btn--gold {
             position: relative;
@@ -1035,7 +982,6 @@
         @media (min-width: 600px) {
             .exp__grid { grid-template-columns: 1fr 1fr; }
             .testimonios__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-            .food-gallery__card { flex: 0 0 220px; }
             .postres__split { grid-template-columns: 1fr 1fr; align-items: start; }
         }
         @media (min-width: 768px) {
@@ -1256,44 +1202,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
         </div>
     </div>
-</section>
-
-<!-- ═══ FOOD GALLERY ═══ -->
-<section class="sec sec--dark" id="galeria-productos">
-    <div class="food-gallery__intro">
-        <span class="sec__label">Las protagonistas</span>
-        <h2 class="sec__h2">PARA<br>ABRIR BOCA</h2>
-    </div>
-    <div class="food-gallery__scroll">
-        <div class="food-gallery__card">
-            <img src="carta_hamburguesas/ankara.webp" alt="Ankara — la más famosa">
-        </div>
-        <div class="food-gallery__card">
-            <img src="carta_hamburguesas/torreankara.webp" alt="Torre Ankara">
-        </div>
-        <div class="food-gallery__card">
-            <img src="carta_hamburguesas/lascaloneta.webp" alt="La Scaloneta">
-        </div>
-        <div class="food-gallery__card">
-            <img src="carta_hamburguesas/domingol.webp" alt="Domingol">
-        </div>
-        <div class="food-gallery__card">
-            <img src="carta_hamburguesas/ladeoro.webp" alt="La De Oro">
-        </div>
-        <div class="food-gallery__card">
-            <img src="carta_hamburguesas/rustica.webp" alt="Rústica">
-        </div>
-        <div class="food-gallery__card">
-            <img src="carta_hamburguesas/lacampeona.webp" alt="La Campeona">
-        </div>
-        <div class="food-gallery__card">
-            <img src="carta_hamburguesas/rojadirecta.webp" alt="Roja Directa">
-        </div>
-    </div>
-    <p class="food-gallery__hint">
-        <i class="fa-solid fa-arrow-right-long"></i>
-        Desliza para ver más
-    </p>
 </section>
 
 <!-- ═══ CARTA ═══ -->
@@ -2438,25 +2346,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         }
         drawSpotlight();
     }
-
-    // ── 3. 3D TILT en food gallery cards ──
-    document.querySelectorAll('.food-gallery__card').forEach(card => {
-        card.addEventListener('mousemove', e => {
-            const r = card.getBoundingClientRect();
-            const x = (e.clientX - r.left) / r.width  - 0.5;
-            const y = (e.clientY - r.top)  / r.height - 0.5;
-            card.style.transform     = `perspective(520px) rotateY(${x * 16}deg) rotateX(${-y * 16}deg) scale(1.05)`;
-            card.style.boxShadow     = `${-x * 14}px ${y * 14}px 28px rgba(200,168,75,0.22), 0 8px 32px rgba(0,0,0,0.5)`;
-            card.style.zIndex        = '10';
-            card.style.transition    = 'transform 0.08s ease, box-shadow 0.08s ease';
-        });
-        card.addEventListener('mouseleave', () => {
-            card.style.transform  = '';
-            card.style.boxShadow  = '';
-            card.style.zIndex     = '';
-            card.style.transition = 'transform 0.4s ease, box-shadow 0.4s ease';
-        });
-    });
 
     // ── EVENTOS DE CONVERSIÓN: pedir online y llamar ──
     document.querySelectorAll('a[href*="ankaraburger.last.shop"]').forEach(a => {
