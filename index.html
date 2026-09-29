@@ -8,7 +8,7 @@
          que es el momento real en que esto pasa. -->
     <script>
     (function() {
-        var BUILD = '1789641910';
+        var BUILD = '1790695655';
         function comprobarVersion() {
             fetch('/version.txt?t=' + Date.now(), { cache: 'no-store' })
                 .then(function(r) { return r.text(); })
@@ -54,8 +54,15 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Fuentes e iconos cargados sin bloquear el renderizado (preload + swap):
+         antes eran <link rel="stylesheet"> normales y retrasaban el primer pintado
+         hasta 3,2s en 4G lento, según PageSpeed Insights. -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    </noscript>
     <script src="supabase-js.min.js"></script>
 
     <script>
