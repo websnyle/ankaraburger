@@ -8,7 +8,7 @@
          que es el momento real en que esto pasa. -->
     <script>
     (function() {
-        var BUILD = '1790697377';
+        var BUILD = '1791362015';
         function comprobarVersion() {
             fetch('/version.txt?t=' + Date.now(), { cache: 'no-store' })
                 .then(function(r) { return r.text(); })
@@ -1572,9 +1572,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <span class="horario-row__dia">LUNES</span>
             <span class="horario-row__hora">Cerrado</span>
         </div>
-        <div class="horario-row">
+        <div class="horario-row cerrado">
             <span class="horario-row__dia">MARTES</span>
-            <span class="horario-row__hora">18:00 – 23:00</span>
+            <span class="horario-row__hora">Cerrado</span>
         </div>
         <div class="horario-row">
             <span class="horario-row__dia">MIÉRCOLES</span>
@@ -1893,8 +1893,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         // Comprobar día de semana
         const dia = new Date(fecha + 'T12:00:00').getDay(); // 0=Dom,1=Lun,...,6=Sáb
-        if (dia === 1) {
-            mostrarError('Ankara Burger está cerrado los lunes');
+        if (dia === 1 || dia === 2) {
+            mostrarError('Ankara Burger está cerrado los lunes y martes');
             servicioEl.innerHTML = '<option value="" disabled selected>¿Cuándo?</option>';
             return;
         }
@@ -1920,7 +1920,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         // Filtrar servicios según día Y configuración de turnos
         let tieneMediodia = MEDIODIA_ACTIVO && [0, 5, 6].includes(dia); // Dom, Vie, Sáb
-        let tieneNoche    = NOCHE_ACTIVO    && [0, 2, 3, 4, 5, 6].includes(dia); // Dom, Mar, Mié, Jue, Vie, Sáb
+        let tieneNoche    = NOCHE_ACTIVO    && [0, 3, 4, 5, 6].includes(dia); // Dom, Mié, Jue, Vie, Sáb
 
         // Corte de reservas para el mismo día, por turno: mediodía cierra a las 12:30,
         // noche cierra a las 19:30 (justo cuando arranca cada servicio).
@@ -2157,7 +2157,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     const HORARIO = {
         0: [[12,0,16,0],[18,0,23,30]],   // domingo
         1: [],                            // lunes — cerrado
-        2: [[18,0,23,0]],                // martes
+        2: [],                            // martes — cerrado
         3: [[18,0,23,0]],                // miércoles
         4: [[18,0,23,0]],                // jueves
         5: [[12,0,15,30],[18,0,23,30]],  // viernes
