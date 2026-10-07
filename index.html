@@ -8,7 +8,7 @@
          que es el momento real en que esto pasa. -->
     <script>
     (function() {
-        var BUILD = '1791362015';
+        var BUILD = '1791362297';
         function comprobarVersion() {
             fetch('/version.txt?t=' + Date.now(), { cache: 'no-store' })
                 .then(function(r) { return r.text(); })
@@ -100,11 +100,10 @@
             "longitude": 1.9724
         },
         "openingHoursSpecification": [
-            { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Wednesday","Thursday"], "opens": "18:00", "closes": "23:00" },
-            { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Friday","Saturday"], "opens": "12:00", "closes": "15:30" },
-            { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Friday","Saturday"], "opens": "18:00", "closes": "23:30" },
-            { "@type": "OpeningHoursSpecification", "dayOfWeek": "Sunday", "opens": "12:00", "closes": "16:00" },
-            { "@type": "OpeningHoursSpecification", "dayOfWeek": "Sunday", "opens": "18:00", "closes": "23:30" }
+            { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Wednesday","Thursday"], "opens": "18:00", "closes": "22:30" },
+            { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Friday","Saturday","Sunday"], "opens": "12:00", "closes": "15:30" },
+            { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Friday","Saturday"], "opens": "18:00", "closes": "23:00" },
+            { "@type": "OpeningHoursSpecification", "dayOfWeek": "Sunday", "opens": "18:00", "closes": "22:30" }
         ],
         "aggregateRating": {
             "@type": "AggregateRating",
@@ -1578,23 +1577,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
         <div class="horario-row">
             <span class="horario-row__dia">MIÉRCOLES</span>
-            <span class="horario-row__hora">18:00 – 23:00</span>
+            <span class="horario-row__hora">18:00 – 22:30</span>
         </div>
         <div class="horario-row">
             <span class="horario-row__dia">JUEVES</span>
-            <span class="horario-row__hora">18:00 – 23:00</span>
+            <span class="horario-row__hora">18:00 – 22:30</span>
         </div>
         <div class="horario-row">
             <span class="horario-row__dia">VIERNES</span>
-            <span class="horario-row__hora">12:00 – 15:30<br>18:00 – 23:30</span>
+            <span class="horario-row__hora">12:00 – 15:30<br>18:00 – 23:00</span>
         </div>
         <div class="horario-row">
             <span class="horario-row__dia">SÁBADO</span>
-            <span class="horario-row__hora">12:00 – 16:00<br>18:00 – 23:30</span>
+            <span class="horario-row__hora">12:00 – 15:30<br>18:00 – 23:00</span>
         </div>
         <div class="horario-row">
             <span class="horario-row__dia">DOMINGO</span>
-            <span class="horario-row__hora">12:00 – 16:00<br>18:00 – 23:30</span>
+            <span class="horario-row__hora">12:00 – 15:30<br>18:00 – 22:30</span>
         </div>
     </div>
 
@@ -1853,6 +1852,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     // ── Disponibilidad ──
     const HORAS_MEDIODIA = ['12:30','13:00','13:30','14:00','14:30','15:00'];
     const HORAS_NOCHE    = ['19:30','20:00','20:30','21:00','21:30','22:00','22:30'];
+    // Cierre de la cocina/local por la noche según el día (0=Dom ... 6=Sáb). La última hora
+    // reservable es 30 min antes de cerrar, como ya pasaba con el mediodía (15:00 para cerrar a 15:30).
+    const CIERRE_NOCHE = { 0: '22:30', 3: '22:30', 4: '22:30', 5: '23:00', 6: '23:00' };
+    function horasNocheDelDia(dia) {
+        const [ch, cm] = (CIERRE_NOCHE[dia] || '23:00').split(':').map(Number);
+        const limite = ch * 60 + cm - 30;
+        return HORAS_NOCHE.filter(h => { const [hh, mm] = h.split(':').map(Number); return hh * 60 + mm <= limite; });
+    }
     let zonaSeleccionada = 'sin_preferencia';
 
     // Zona buttons — solo cambian zona y recalculan, nunca tocan las horas
@@ -1936,7 +1943,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         let options = '<option value="" disabled selected>¿Cuándo?</option>';
         if (tieneMediodia) options += '<option value="mediodia">Mediodía (12:30–15:30)</option>';
-        if (tieneNoche)    options += '<option value="noche">Noche (19:30–23:30)</option>';
+        if (tieneNoche)    options += `<option value="noche">Noche (19:30–${CIERRE_NOCHE[dia] || '23:00'})</option>`;
         servicioEl.innerHTML = options;
         dispEl.style.display = 'none';
         document.getElementById('res-hora-wrap').style.display = 'none';
@@ -1947,7 +1954,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     function onServicioChange() {
         const servicio = document.getElementById('res-servicio').value;
         if (!servicio) return;
-        const allHoras = servicio === 'mediodia' ? HORAS_MEDIODIA : HORAS_NOCHE;
+        const fechaSel = document.getElementById('res-fecha').value;
+        const diaSel = fechaSel ? new Date(fechaSel + 'T12:00:00').getDay() : 5;
+        const allHoras = servicio === 'mediodia' ? HORAS_MEDIODIA : horasNocheDelDia(diaSel);
         const bloqueadas = servicio === 'mediodia' ? FRANJAS_BLOQUEADAS.mediodia : FRANJAS_BLOQUEADAS.noche;
         const horas = allHoras.filter(h => !bloqueadas.includes(h));
         const horaEl = document.getElementById('res-hora');
@@ -2155,13 +2164,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     // ── ESTADO ABIERTO / CERRADO ──
     // Horario: [día semana 0=Dom]: [[abreH,abreM,cierraH,cierraM], ...]
     const HORARIO = {
-        0: [[12,0,16,0],[18,0,23,30]],   // domingo
+        0: [[12,0,15,30],[18,0,22,30]],  // domingo
         1: [],                            // lunes — cerrado
         2: [],                            // martes — cerrado
-        3: [[18,0,23,0]],                // miércoles
-        4: [[18,0,23,0]],                // jueves
-        5: [[12,0,15,30],[18,0,23,30]],  // viernes
-        6: [[12,0,16,0],[18,0,23,30]]    // sábado
+        3: [[18,0,22,30]],               // miércoles
+        4: [[18,0,22,30]],               // jueves
+        5: [[12,0,15,30],[18,0,23,0]],   // viernes
+        6: [[12,0,15,30],[18,0,23,0]]    // sábado
     };
     const DIAS_ES = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
 
