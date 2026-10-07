@@ -18,11 +18,11 @@ Ankara Burger es una hamburguesería especializada en smash burgers — técnica
 ## Horarios
 
 - Lunes y martes: cerrado
-- Miércoles: 18:00–23:00
-- Jueves: 18:00–23:00
-- Viernes: 12:00–15:30 y 18:00–23:30
-- Sábado: 12:00–16:00 y 18:00–23:30
-- Domingo: 12:00–16:00 y 18:00–23:30
+- Miércoles: 18:00–22:30
+- Jueves: 18:00–22:30
+- Viernes: 12:00–15:30 y 18:00–23:00
+- Sábado: 12:00–15:30 y 18:00–23:00
+- Domingo: 12:00–15:30 y 18:00–22:30
 
 ## Carta
 
