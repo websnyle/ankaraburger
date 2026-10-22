@@ -8,7 +8,7 @@
          que es el momento real en que esto pasa. -->
     <script>
     (function() {
-        var BUILD = '1791362297';
+        var BUILD = '1792674206';
         function comprobarVersion() {
             fetch('/version.txt?t=' + Date.now(), { cache: 'no-store' })
                 .then(function(r) { return r.text(); })
@@ -763,6 +763,49 @@
         .sticky-bar__btn--order { background: var(--color-primary); color: #000; }
         .sticky-bar__btn--order:hover { background: var(--color-accent); }
 
+        /* ─── SELECTOR DE PEDIDO (Glovo / Uber Eats) ─── */
+        .pedir-sheet {
+            position: fixed; inset: 0; z-index: 10000;
+            display: none; align-items: flex-end; justify-content: center;
+            background: rgba(0,0,0,0.82);
+        }
+        .pedir-sheet.is-open { display: flex; }
+        .pedir-sheet__panel {
+            position: relative; width: 100%; max-width: 440px;
+            background: var(--color-surface);
+            border-top: 1px solid rgba(200,168,75,0.3);
+            border-radius: 14px 14px 0 0;
+            padding: 26px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+            animation: pedirUp 0.28s cubic-bezier(0.16,1,0.3,1);
+        }
+        @keyframes pedirUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+        .pedir-sheet__close {
+            position: absolute; top: 10px; right: 10px; width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            background: none; border: none; color: var(--color-muted); font-size: 1.1rem; cursor: pointer;
+        }
+        .pedir-sheet__close:hover { color: var(--color-text); }
+        .pedir-sheet__label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--color-accent); margin: 0 0 6px; }
+        .pedir-sheet__title { font-family: var(--font-display); font-size: 2rem; letter-spacing: 0.04em; line-height: 1; color: var(--color-text); margin: 0 0 8px; }
+        .pedir-sheet__sub { font-size: 0.84rem; color: var(--color-muted); line-height: 1.5; margin: 0 0 20px; }
+        .pedir-sheet__opts { display: flex; flex-direction: column; gap: 10px; }
+        .pedir-opt {
+            display: flex; align-items: center; gap: 14px;
+            padding: 18px 18px; border-radius: 6px;
+            background: var(--color-surface2); border: 1px solid rgba(200,168,75,0.22);
+            color: var(--color-text); text-decoration: none;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .pedir-opt:hover, .pedir-opt:focus-visible { border-color: var(--color-primary); background: #262626; outline: none; }
+        .pedir-opt__dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+        .pedir-opt__name { flex: 1; font-family: var(--font-display); font-size: 1.55rem; letter-spacing: 0.08em; line-height: 1; }
+        .pedir-opt i { font-size: 0.85rem; color: var(--color-muted); }
+        @media (min-width: 600px) {
+            .pedir-sheet { align-items: center; padding: 20px; }
+            .pedir-sheet__panel { border: 1px solid rgba(200,168,75,0.3); border-radius: 12px; }
+        }
+        @media (prefers-reduced-motion: reduce) { .pedir-sheet__panel { animation: none; } }
+
         /* ─── FOOTER ─── */
         .footer {
             background: var(--color-surface);
@@ -1084,8 +1127,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <a href="#resenas" class="nav__menu__link">RESEÑAS</a>
     <a href="#reservar" class="nav__menu__link">RESERVAR</a>
     <a href="#contacto" class="nav__menu__link">CONTACTO</a>
-    <a href="https://ankaraburger.last.shop/es/" target="_blank" rel="noopener" class="nav__menu__cta">
-        <i class="fa-solid fa-bag-shopping"></i> PEDIR ONLINE
+    <a href="#pedir" data-pedir class="nav__menu__cta">
+        <i class="fa-solid fa-bag-shopping"></i> PEDIR PARA LLEVAR
     </a>
 </div>
 
@@ -1108,9 +1151,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <p class="hero__claim reveal reveal-d2">EL SABOR NO SE MANCHA</p>
         <h2 class="hero__sub reveal reveal-d3">Hamburguesería argentina en Castelldefels. Smash burgers artesanales con ADN argentino. Carne, fuego y sabor en cada bocado.</h2>
         <div class="hero__btns reveal reveal-d4">
-            <a href="https://ankaraburger.last.shop/es/" target="_blank" rel="noopener" class="btn btn--gold">
+            <a href="#pedir" data-pedir class="btn btn--gold">
                 <i class="fa-solid fa-bag-shopping"></i>
-                PEDIR AHORA
+                PEDIR PARA LLEVAR
             </a>
             <a href="carta" class="btn btn--outline">
                 <i class="fa-solid fa-book-open"></i>
@@ -1599,7 +1642,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <div class="horario-note">
         <i class="fa-solid fa-circle-info" style="color:var(--color-primary);margin-right:6px"></i>
-        Se recomienda reservar mesa los fines de semana. Llama al <strong style="color:var(--color-text)">686 30 47 38</strong> o pide online para llevar sin esperas.
+        Se recomienda reservar mesa los fines de semana. Llama al <strong style="color:var(--color-text)">686 30 47 38</strong> o pide para llevar con Glovo o Uber Eats.
     </div>
 </section>
 
@@ -1678,7 +1721,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <i class="fa-solid fa-phone"></i>
             LLAMAR: 686 30 47 38
         </a>
-        <a href="https://ankaraburger.last.shop/es/" target="_blank" rel="noopener" class="btn-block btn-block--gold">
+        <a href="#pedir" data-pedir class="btn-block btn-block--gold">
             <i class="fa-solid fa-bag-shopping"></i>
             PEDIR PARA LLEVAR
         </a>
@@ -1758,10 +1801,32 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <i class="fa-solid fa-calendar-check"></i>
         RESERVAR
     </a>
-    <a href="https://ankaraburger.last.shop/es/" target="_blank" rel="noopener" class="sticky-bar__btn sticky-bar__btn--order">
+    <a href="#pedir" data-pedir class="sticky-bar__btn sticky-bar__btn--order">
         <i class="fa-solid fa-bag-shopping"></i>
-        PEDIR ONLINE
+        PEDIR PARA LLEVAR
     </a>
+</div>
+
+<!-- ═══ SELECTOR DE PEDIDO ═══ -->
+<div class="pedir-sheet" id="pedir-sheet" role="dialog" aria-modal="true" aria-labelledby="pedir-titulo" aria-hidden="true">
+    <div class="pedir-sheet__panel">
+        <button type="button" class="pedir-sheet__close" data-cerrar-pedir aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+        <p class="pedir-sheet__label">Pedir para llevar</p>
+        <h2 class="pedir-sheet__title" id="pedir-titulo">¿POR DÓNDE PEDIR?</h2>
+        <p class="pedir-sheet__sub">Elige tu app y se abre la tienda de Ankara Burger en otra pestaña.</p>
+        <div class="pedir-sheet__opts">
+            <a class="pedir-opt" data-plataforma="glovo" href="https://glovoapp.com/es/es/castelldefels/stores/ankara-burguer-castelldefels" target="_blank" rel="noopener">
+                <span class="pedir-opt__dot" style="background:#FFC244"></span>
+                <span class="pedir-opt__name">GLOVO</span>
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+            <a class="pedir-opt" data-plataforma="uber_eats" href="https://www.ubereats.com/es/store/ankara-burger-castelldefels/glQAG1yiRiarwyfz9w9Zyw" target="_blank" rel="noopener">
+                <span class="pedir-opt__dot" style="background:#06C167"></span>
+                <span class="pedir-opt__name">UBER EATS</span>
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -2376,12 +2441,48 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     }
 
     // ── EVENTOS DE CONVERSIÓN: pedir online y llamar ──
-    document.querySelectorAll('a[href*="ankaraburger.last.shop"]').forEach(a => {
-        a.addEventListener('click', () => {
-            window.dataLayer = window.dataLayer || [];
-            window.dataLayer.push({ event: 'click_pedir_online', click_ubicacion: a.className || a.closest('[class]')?.className || 'desconocida' });
+    // El evento se sigue llamando click_pedir_online (así no se rompe la conversión que ya existe),
+    // pero ahora solo salta al tocar Glovo o Uber Eats, y lleva la plataforma elegida.
+    (function () {
+        const sheet = document.getElementById('pedir-sheet');
+        if (!sheet) return;
+        let ubicacion = 'desconocida', previo = null;
+        function abrir(origen) {
+            ubicacion = origen || 'desconocida';
+            previo = document.activeElement;
+            sheet.classList.add('is-open');
+            sheet.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            const primero = sheet.querySelector('.pedir-opt');
+            if (primero) primero.focus();
+        }
+        function cerrar() {
+            sheet.classList.remove('is-open');
+            sheet.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+            if (location.hash === '#pedir') history.replaceState(null, '', location.pathname + location.search);
+            if (previo && previo.focus) previo.focus();
+        }
+        document.querySelectorAll('[data-pedir]').forEach(a => {
+            a.addEventListener('click', e => { e.preventDefault(); abrir(a.className || 'desconocida'); });
         });
-    });
+        sheet.addEventListener('click', e => {
+            if (e.target === sheet || e.target.closest('[data-cerrar-pedir]')) cerrar();
+        });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && sheet.classList.contains('is-open')) cerrar();
+        });
+        sheet.querySelectorAll('[data-plataforma]').forEach(a => {
+            a.addEventListener('click', () => {
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({ event: 'click_pedir_online', click_ubicacion: ubicacion, plataforma: a.dataset.plataforma });
+            });
+        });
+        // Enlace directo (por ejemplo, el botón de un popup): ankaraburger.com/#pedir abre el selector
+        function porHash() { if (location.hash === '#pedir') abrir('enlace_directo'); }
+        window.addEventListener('hashchange', porHash);
+        porHash();
+    })();
     document.querySelectorAll('a[href^="tel:"]').forEach(a => {
         a.addEventListener('click', () => {
             window.dataLayer = window.dataLayer || [];
