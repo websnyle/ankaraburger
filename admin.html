@@ -731,7 +731,7 @@
                         <option value="sin_boton">Sin botón</option>
                         <option value="ver_carta">Ver carta completa</option>
                         <option value="reservar">Reservar mesa</option>
-                        <option value="pedir_online">Pedir online</option>
+                        <option value="pedir_online">Pedir para llevar</option>
                     </select>
                     <!-- campos ocultos para compatibilidad -->
                     <input type="hidden" id="cfg-popup-cta-texto">
@@ -783,7 +783,7 @@
                         <option value="sin_boton">Sin botón</option>
                         <option value="ver_carta">Ver carta completa</option>
                         <option value="reservar">Reservar mesa</option>
-                        <option value="pedir_online">Pedir online</option>
+                        <option value="pedir_online">Pedir para llevar</option>
                     </select>
                 </div>
             </div>
@@ -2037,7 +2037,7 @@
         const ctaMap = {
             'carta.html': 'ver_carta',
             'index.html#reservar': 'reservar',
-            'https://ankaraburger.last.shop/es/': 'pedir_online'
+            'index.html#pedir': 'pedir_online'
         };
         const ctaSel = document.getElementById('cfg-popup-cta-select');
         ctaSel.value = ctaMap[cfg.popup_cta_url] || 'sin_boton';
@@ -2054,7 +2054,7 @@
         const ctaMapCarta = {
             'carta.html': 'ver_carta',
             'index.html#reservar': 'reservar',
-            'https://ankaraburger.last.shop/es/': 'pedir_online'
+            'index.html#pedir': 'pedir_online'
         };
         document.getElementById('cfg-popup-carta-cta-select').value = ctaMapCarta[cfg.popup_carta_cta_url] || 'sin_boton';
         if (cfg.popup_carta_imagen_url) {
@@ -2160,7 +2160,7 @@
                 const opts = {
                     ver_carta:    { texto: 'VER CARTA', url: 'carta.html' },
                     reservar:     { texto: 'RESERVAR MESA', url: 'index.html#reservar' },
-                    pedir_online: { texto: 'PEDIR ONLINE', url: 'https://ankaraburger.last.shop/es/' },
+                    pedir_online: { texto: 'PEDIR PARA LLEVAR', url: 'index.html#pedir' },
                     sin_boton:    { texto: '', url: '' }
                 };
                 const o = opts[sel] || opts.sin_boton;
@@ -2178,7 +2178,7 @@
                 const opts = {
                     ver_carta:    { texto: 'VER CARTA', url: 'carta.html' },
                     reservar:     { texto: 'RESERVAR MESA', url: 'index.html#reservar' },
-                    pedir_online: { texto: 'PEDIR ONLINE', url: 'https://ankaraburger.last.shop/es/' },
+                    pedir_online: { texto: 'PEDIR PARA LLEVAR', url: 'index.html#pedir' },
                     sin_boton:    { texto: '', url: '' }
                 };
                 const o = opts[sel] || opts.sin_boton;
